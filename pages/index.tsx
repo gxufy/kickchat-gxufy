@@ -31,6 +31,12 @@ const QuerySchema = z.object({
   showPinEnabled: z.string().optional().transform(v => v === 'true'),
   textBackgroundEnabled: z.string().optional().transform(v => v === 'true'),
   textBackgroundWidth: z.string().optional().transform(v => v === 'max' ? 'max' : 'min'),
+  stroke: z.string().optional().transform(v => ['thin','medium','thick','thicker'].includes(v ?? '') ? v! : 'none'),
+  emoteScale: z.string().optional().transform(v => { const n = parseFloat(v ?? ''); return isNaN(n) ? 1 : n; }),
+  fade: z.string().optional().transform(v => { const n = parseInt(v ?? ''); return isNaN(n) ? false as const : n; }),
+  smallCaps: z.string().optional().transform(v => v === 'true'),
+  nlAfterName: z.string().optional().transform(v => v === 'true'),
+  hideNames: z.string().optional().transform(v => v === 'true'),
 });
 
 export type OverlayConfig = z.infer<typeof QuerySchema>;
@@ -252,6 +258,7 @@ export default function Page() {
 
         return {
           id: rawMsg.id,
+          timestamp: Date.now(),
           identity: {
             username: rawMsg.sender.username,
             color: rawMsg.sender.identity.color || '#ffffff',
@@ -385,6 +392,21 @@ export default function Page() {
     }
 
     init();
+
+    // Fade old messages out after N seconds if fade is set
+    let fadeInterval: ReturnType<typeof setInterval> | null = null;
+    if (cfg.fade !== false) {
+      const fadeMs = (cfg.fade as number) * 1000;
+      fadeInterval = setInterval(() => {
+        const cutoff = Date.now() - fadeMs;
+        s.messages = s.messages.filter(m => (m.timestamp ?? 0) > cutoff);
+        setMessages([...s.messages]);
+      }, 1000);
+    }
+
+    return () => {
+      if (fadeInterval) clearInterval(fadeInterval);
+    };
   }, [router.isReady]);
 
   if (!ready) return null;
