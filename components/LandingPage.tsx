@@ -1,33 +1,88 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
+/* ── Types ─────────────────────────────────────────────── */
+
+interface Config {
+  channel: string;
+  sevenTVEmotes: boolean;
+  sevenTVCosmetics: boolean;
+  theme: string;
+  textSize: string;
+  textShadow: string;
+  stroke: string;
+  animation: string;
+  fade: number | false;
+  showPin: boolean;
+  textBg: boolean;
+  textBgWidth: string;
+  emoteScale: number;
+  smallCaps: boolean;
+  nlAfterName: boolean;
+  hideNames: boolean;
+}
+
+const DEFAULTS: Config = {
+  channel: '',
+  sevenTVEmotes: true,
+  sevenTVCosmetics: true,
+  theme: 'dark',
+  textSize: 'medium',
+  textShadow: 'small',
+  stroke: 'none',
+  animation: 'slide',
+  fade: false,
+  showPin: false,
+  textBg: false,
+  textBgWidth: 'min',
+  emoteScale: 1,
+  smallCaps: false,
+  nlAfterName: false,
+  hideNames: false,
+};
+
+/* ── Fake preview messages ─────────────────────────────── */
+
+const PREVIEW_MSGS = [
+  { badge: '#53fc18', username: 'Broadcaster', color: '#53fc18',  msg: 'Welcome to my stream! PogChamp' },
+  { badge: '#5b87ff', username: 'ModeratorUser', color: '#5b87ff', msg: 'chat is so hype tonight KEKW' },
+  { badge: null,      username: 'chatter123',    color: '#D399FF', msg: 'Hello, this is what your chat looks like! 👋' },
+  { badge: null,      username: 'subscriber99',  color: '#FF8C00', msg: 'Great stream bro LUL' },
+];
+
+/* ── Main component ────────────────────────────────────── */
+
 export default function LandingPage() {
-  const [channel, setChannel] = useState('');
-  const [sevenTVCosmetics, setSevenTVCosmetics] = useState(true);
-  const [sevenTVEmotes, setSevenTVEmotes] = useState(true);
-  const [theme, setTheme] = useState('dark');
-  const [textShadow, setTextShadow] = useState('small');
-  const [textSize, setTextSize] = useState('medium');
-  const [animation, setAnimation] = useState('slide');
-  const [showPin, setShowPin] = useState(false);
-  const [textBg, setTextBg] = useState(false);
-  const [textBgWidth, setTextBgWidth] = useState('min');
+  const [cfg, setCfg] = useState<Config>(DEFAULTS);
   const [copied, setCopied] = useState(false);
+  const [baseUrl, setBaseUrl] = useState('https://your-domain.vercel.app');
+
+  useEffect(() => {
+    setBaseUrl(window.location.origin);
+  }, []);
+
+  const set = <K extends keyof Config>(k: K, v: Config[K]) =>
+    setCfg(prev => ({ ...prev, [k]: v }));
 
   const params = new URLSearchParams({
-    channel: channel || 'yourchannel',
-    sevenTVCosmeticsEnabled: String(sevenTVCosmetics),
-    sevenTVEmotesEnabled: String(sevenTVEmotes),
-    theme,
-    textShadow,
-    textSize,
-    animation,
-    showPinEnabled: String(showPin),
-    textBackgroundEnabled: String(textBg),
-    textBackgroundWidth: textBgWidth,
+    channel: cfg.channel || 'yourchannel',
+    sevenTVEmotesEnabled: String(cfg.sevenTVEmotes),
+    sevenTVCosmeticsEnabled: String(cfg.sevenTVCosmetics),
+    theme: cfg.theme,
+    textSize: cfg.textSize,
+    textShadow: cfg.textShadow,
+    stroke: cfg.stroke,
+    animation: cfg.animation,
+    ...(cfg.fade !== false ? { fade: String(cfg.fade) } : {}),
+    showPinEnabled: String(cfg.showPin),
+    textBackgroundEnabled: String(cfg.textBg),
+    textBackgroundWidth: cfg.textBgWidth,
+    emoteScale: String(cfg.emoteScale),
+    smallCaps: String(cfg.smallCaps),
+    nlAfterName: String(cfg.nlAfterName),
+    hideNames: String(cfg.hideNames),
   });
 
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://your-domain.vercel.app';
   const overlayUrl = `${baseUrl}/?${params.toString()}`;
 
   const copy = () => {
@@ -36,158 +91,344 @@ export default function LandingPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  /* ── Preview styles ── */
+  const previewFontSize = cfg.textSize === 'small' ? '0.82rem' : cfg.textSize === 'large' ? '1.25rem' : '1rem';
+  const previewShadow =
+    cfg.textShadow === 'small'  ? '1px 1px 2px #000,-1px -1px 2px #000' :
+    cfg.textShadow === 'medium' ? '1px 1px 3px #000,-1px -1px 3px #000,0 0 5px #000' :
+    cfg.textShadow === 'large'  ? '1px 1px 4px #000,-1px -1px 4px #000,0 0 10px #000' : 'none';
+  const previewStroke: React.CSSProperties =
+    cfg.stroke === 'thin'    ? { WebkitTextStroke: '1px black' } :
+    cfg.stroke === 'medium'  ? { WebkitTextStroke: '2px black' } :
+    cfg.stroke === 'thick'   ? { WebkitTextStroke: '3px black' } :
+    cfg.stroke === 'thicker' ? { WebkitTextStroke: '4px black' } : {};
+
   return (
     <>
       <Head>
         <title>Kick Chat Overlay</title>
-        <meta name="description" content="Free Kick chat overlay for OBS with 7TV support. Works instantly — no login required." />
+        <meta name="description" content="Free Kick chat overlay for OBS with 7TV support." />
       </Head>
-      <div className="min-h-screen bg-gradient-to-br from-[#0f0f0f] to-[#1a1a2e] text-white">
-        <div className="max-w-3xl mx-auto px-4 py-16">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-[#53fc18]/10 border border-[#53fc18]/30 rounded-full px-4 py-1.5 mb-6 text-[#53fc18] text-sm font-medium">
-              <span className="w-2 h-2 rounded-full bg-[#53fc18] animate-pulse" />
-              Free · No login required · Open source
-            </div>
-            <h1 className="text-5xl font-black mb-3 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-              Kick Chat Overlay
-            </h1>
-            <p className="text-gray-400 text-lg">
-              Drop your Kick chat into OBS in seconds. 7TV emotes &amp; cosmetics included.
-            </p>
+
+      <style>{`
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #0d0d0d; color: #fff; font-family: 'Segoe UI', system-ui, sans-serif; }
+        select option { background: #1e1e1e; }
+        .preview-bg {
+          background: repeating-conic-gradient(#111 0% 25%, #0a0a0a 0% 50%) 0 0 / 18px 18px;
+        }
+        .control-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .control-label { min-width: 130px; font-size: 0.8rem; color: #888; }
+        select, input[type=text], input[type=number] {
+          background: #1c1c1c; border: 1px solid #333; border-radius: 4px;
+          color: #fff; padding: 3px 7px; font-size: 0.82rem; outline: none;
+        }
+        select:focus, input:focus { border-color: #53fc18; }
+        .toggle-chip {
+          display: inline-flex; align-items: center; gap: 5px;
+          padding: 3px 10px; border-radius: 99px; cursor: pointer;
+          font-size: 0.78rem; border: 1px solid #333; background: #181818;
+          transition: all .15s; user-select: none;
+        }
+        .toggle-chip.on { border-color: #53fc18; background: rgba(83,252,24,0.08); color: #53fc18; }
+        .toggle-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: #555; transition: background .15s; }
+        .toggle-chip.on .dot { background: #53fc18; }
+        .section-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: .08em; color: #555; margin: 14px 0 6px; }
+        a { color: #53fc18; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+      `}</style>
+
+      {/* Header */}
+      <header style={{ borderBottom: '1px solid #1e1e1e', padding: '10px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#53fc18', display: 'inline-block', boxShadow: '0 0 6px #53fc18' }} />
+          <strong style={{ fontSize: '0.95rem' }}>Kick Chat Overlay</strong>
+        </div>
+        <a href="https://github.com/gxufy/kick-chat-overlay3" target="_blank" rel="noreferrer"
+           style={{ fontSize: '0.75rem', color: '#555', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <GithubIcon /> GitHub
+        </a>
+      </header>
+
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '24px 20px', display: 'grid', gridTemplateColumns: '1fr 360px', gap: 28 }}>
+
+        {/* ── Left: controls ── */}
+        <div>
+          {/* About */}
+          <p style={{ color: '#666', fontSize: '0.82rem', marginTop: 0, marginBottom: 16, lineHeight: 1.6 }}>
+            A clean Kick chat overlay for OBS/Streamlabs with 7TV emotes, cosmetics, name-paints, and zero-width emote stacking.
+            No login required.
+          </p>
+
+          {/* Channel */}
+          <div className="section-title">Channel *</div>
+          <input
+            type="text"
+            placeholder="e.g. xqc"
+            value={cfg.channel}
+            onChange={e => set('channel', e.target.value)}
+            style={{ width: '100%', padding: '6px 10px', fontSize: '0.9rem', marginBottom: 6 }}
+          />
+
+          {/* Size / font */}
+          <div className="section-title">Appearance</div>
+
+          <div className="control-row">
+            <span className="control-label">Text Size</span>
+            <InlineRadio
+              options={[['small','Small'],['medium','Medium'],['large','Large']]}
+              value={cfg.textSize} onChange={v => set('textSize', v)}
+            />
           </div>
 
-          {/* Config panel */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6 backdrop-blur">
-            <h2 className="text-lg font-bold mb-5 text-white/80">⚙️ Configure your overlay</h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Channel */}
-              <div className="sm:col-span-2">
-                <label className="block text-sm text-gray-400 mb-1">Kick Channel Name *</label>
-                <input
-                  type="text"
-                  placeholder="e.g. xqc"
-                  value={channel}
-                  onChange={e => setChannel(e.target.value)}
-                  className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-[#53fc18]/50 focus:ring-1 focus:ring-[#53fc18]/30 transition"
-                />
-              </div>
-
-              {/* Theme */}
-              <SelectField label="Theme" value={theme} onChange={setTheme} options={[['dark', 'Dark'], ['light', 'Light'], ['system', 'System']]} />
-
-              {/* Text Size */}
-              <SelectField label="Text Size" value={textSize} onChange={setTextSize} options={[['small', 'Small'], ['medium', 'Medium'], ['large', 'Large']]} />
-
-              {/* Text Shadow */}
-              <SelectField label="Text Shadow" value={textShadow} onChange={setTextShadow} options={[['none', 'None'], ['small', 'Small'], ['medium', 'Medium'], ['large', 'Large']]} />
-
-              {/* Animation */}
-              <SelectField label="Message Animation" value={animation} onChange={setAnimation} options={[['none', 'None'], ['slide', 'Slide in'], ['fade', 'Fade in']]} />
-
-              {/* Text Bg Width */}
-              <SelectField label="Text Background Width" value={textBgWidth} onChange={setTextBgWidth} options={[['min', 'Fit content'], ['max', 'Full width']]} disabled={!textBg} />
-
-              {/* Toggles */}
-              <div className="sm:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <Toggle label="7TV Emotes" value={sevenTVEmotes} onChange={setSevenTVEmotes} />
-                <Toggle label="7TV Cosmetics" value={sevenTVCosmetics} onChange={setSevenTVCosmetics} />
-                <Toggle label="Text Background" value={textBg} onChange={setTextBg} />
-                <Toggle label="Pinned Messages" value={showPin} onChange={setShowPin} />
-              </div>
-            </div>
+          <div className="control-row">
+            <span className="control-label">Stroke</span>
+            <InlineRadio
+              options={[['none','Off'],['thin','Thin'],['medium','Medium'],['thick','Thick'],['thicker','Thicker']]}
+              value={cfg.stroke} onChange={v => set('stroke', v)}
+            />
           </div>
 
-          {/* Preview */}
-          <div className="bg-black/40 border border-white/10 rounded-2xl p-4 mb-6">
-            <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Preview</p>
-            <div className={`${textSize === 'small' ? 'text-sm' : textSize === 'large' ? 'text-xl' : 'text-base'} flex flex-wrap items-center gap-1`}>
-              <span className="inline-flex items-center gap-0.5 mr-1">
-                {/* broadcaster badge placeholder */}
-                <span className="w-4 h-4 rounded bg-[#53fc18]/80 inline-block" title="broadcaster" />
-              </span>
-              <span className="font-bold" style={{ color: '#D399FF' }}>YourChannel</span>
-              <span className="text-white">: Hello, this is what a chat message looks like! 👋</span>
-            </div>
+          <div className="control-row">
+            <span className="control-label">Shadow</span>
+            <InlineRadio
+              options={[['none','Off'],['small','Small'],['medium','Medium'],['large','Large']]}
+              value={cfg.textShadow} onChange={v => set('textShadow', v)}
+            />
+          </div>
+
+          <div className="control-row">
+            <span className="control-label">Emote Scale</span>
+            <input
+              type="number" min={0.5} max={3} step={0.1}
+              value={cfg.emoteScale}
+              onChange={e => set('emoteScale', parseFloat(e.target.value) || 1)}
+              style={{ width: 64 }}
+            />
+            <span style={{ color: '#555', fontSize: '0.75rem' }}>× default size</span>
+          </div>
+
+          <div className="control-row">
+            <span className="control-label">Theme</span>
+            <InlineRadio
+              options={[['dark','Dark'],['light','Light'],['system','System']]}
+              value={cfg.theme} onChange={v => set('theme', v)}
+            />
+          </div>
+
+          {/* Behaviour */}
+          <div className="section-title">Behaviour</div>
+
+          <div className="control-row">
+            <span className="control-label">Animation</span>
+            <InlineRadio
+              options={[['none','None'],['slide','Slide'],['fade','Fade']]}
+              value={cfg.animation} onChange={v => set('animation', v)}
+            />
+          </div>
+
+          <div className="control-row">
+            <span className="control-label">Fade after</span>
+            <input
+              type="number" min={5} max={300} step={5}
+              value={cfg.fade === false ? '' : cfg.fade}
+              placeholder="off"
+              onChange={e => set('fade', e.target.value === '' ? false : parseInt(e.target.value))}
+              style={{ width: 64 }}
+            />
+            <span style={{ color: '#555', fontSize: '0.75rem' }}>seconds (blank = off)</span>
+          </div>
+
+          <div className="control-row">
+            <span className="control-label">Text Background Width</span>
+            <InlineRadio
+              options={[['min','Fit content'],['max','Full width']]}
+              value={cfg.textBgWidth} onChange={v => set('textBgWidth', v)}
+            />
+          </div>
+
+          {/* Toggles */}
+          <div className="section-title">Features</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {([
+              ['sevenTVEmotes',    '7TV Emotes'],
+              ['sevenTVCosmetics', '7TV Cosmetics'],
+              ['textBg',           'Text Background'],
+              ['showPin',          'Pinned Messages'],
+              ['smallCaps',        'Small Caps'],
+              ['nlAfterName',      'Newline after name'],
+              ['hideNames',        'Hide Usernames'],
+            ] as [keyof Config, string][]).map(([k, label]) => (
+              <Chip key={k} label={label} value={cfg[k] as boolean} onChange={v => set(k, v as any)} />
+            ))}
           </div>
 
           {/* URL output */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-6">
-            <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Your overlay URL</p>
-            <div className="flex gap-2">
-              <code className="flex-1 text-[#53fc18] text-xs break-all bg-black/30 rounded-lg px-3 py-2 select-all">
-                {overlayUrl}
-              </code>
-              <button
-                onClick={copy}
-                className="flex-shrink-0 bg-[#53fc18] hover:bg-[#53fc18]/80 text-black font-bold text-sm px-4 py-2 rounded-lg transition"
-              >
-                {copied ? '✓ Copied' : 'Copy'}
-              </button>
+          <div className="section-title">Your Overlay URL</div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
+            <code style={{
+              flex: 1, display: 'block', background: '#0a0a0a', border: '1px solid #222',
+              borderRadius: 5, padding: '8px 10px', fontSize: '0.72rem', color: '#53fc18',
+              wordBreak: 'break-all', lineHeight: 1.7, cursor: 'text',
+            }}>
+              {overlayUrl}
+            </code>
+            <button onClick={copy} style={{
+              flexShrink: 0, background: copied ? '#44d412' : '#53fc18',
+              color: '#000', border: 'none', borderRadius: 5, fontWeight: 700,
+              fontSize: '0.82rem', padding: '0 16px', cursor: 'pointer', transition: 'background .2s'
+            }}>
+              {copied ? '✓ Copied' : 'Copy'}
+            </button>
+          </div>
+
+          {/* OBS instructions */}
+          <div className="section-title">OBS Setup</div>
+          <ol style={{ color: '#666', fontSize: '0.8rem', lineHeight: 2, paddingLeft: 18, margin: 0 }}>
+            <li>Configure your settings above and copy the URL</li>
+            <li>In OBS: <strong style={{ color: '#bbb' }}>Add Source → Browser Source</strong></li>
+            <li>Paste the URL — recommended size: <strong style={{ color: '#bbb' }}>400 × 600</strong></li>
+            <li>Enable <strong style={{ color: '#bbb' }}>"Shutdown source when not visible"</strong></li>
+            <li>Enable <strong style={{ color: '#bbb' }}>"Refresh browser when scene becomes active"</strong></li>
+          </ol>
+        </div>
+
+        {/* ── Right: live preview ── */}
+        <div>
+          <div className="section-title" style={{ marginTop: 0 }}>Preview</div>
+
+          <div className="preview-bg" style={{ borderRadius: 6, border: '1px solid #222', overflow: 'hidden', height: 320, position: 'relative' }}>
+            <div style={{
+              position: 'absolute', bottom: 0, left: 0, width: '100%', padding: '4px 0',
+              fontSize: previewFontSize, textShadow: previewShadow, color: '#fff',
+              ...previewStroke,
+            }}>
+              {PREVIEW_MSGS.map((m, i) => (
+                <PreviewMsg
+                  key={i}
+                  {...m}
+                  textBg={cfg.textBg}
+                  textBgWidth={cfg.textBgWidth}
+                  hideNames={cfg.hideNames}
+                  nlAfterName={cfg.nlAfterName}
+                  smallCaps={cfg.smallCaps}
+                />
+              ))}
             </div>
           </div>
 
-          {/* How to use */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-            <h2 className="font-bold mb-3 text-white/80">🎬 How to add to OBS</h2>
-            <ol className="text-gray-400 text-sm space-y-1.5 list-decimal list-inside">
-              <li>Enter your Kick channel name above and configure your settings</li>
-              <li>Copy the overlay URL</li>
-              <li>In OBS, add a <strong className="text-white">Browser Source</strong></li>
-              <li>Paste the URL and set width/height (e.g. 400×600 for a sidebar)</li>
-              <li>Check <strong className="text-white">"Shutdown source when not visible"</strong> and <strong className="text-white">"Refresh browser when scene becomes active"</strong></li>
-            </ol>
+          {/* Feature list */}
+          <div style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: 6, padding: '12px 14px', marginTop: 12 }}>
+            <p style={{ margin: '0 0 8px', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '.08em', color: '#444' }}>Features</p>
+            {[
+              '7TV global + channel emotes',
+              '7TV cosmetics (badges, name-paints)',
+              'Zero-width emote stacking',
+              'Sub, Mod, VIP, Broadcaster badges',
+              'Slide / Fade / None animations',
+              'Name-paint gradient support',
+              'Pinned message banner',
+              'Dark / Light / System theme',
+            ].map(f => (
+              <div key={f} style={{ display: 'flex', gap: 8, fontSize: '0.78rem', color: '#666', lineHeight: 1.9 }}>
+                <span style={{ color: '#53fc18' }}>✓</span> {f}
+              </div>
+            ))}
           </div>
-
-          <p className="text-center text-gray-600 text-sm mt-8">
-            Open source · Built for Kick streamers
-          </p>
         </div>
+
       </div>
+
+      <p style={{ textAlign: 'center', color: '#333', fontSize: '0.72rem', paddingBottom: 24 }}>
+        Open source · Built for Kick streamers
+      </p>
     </>
   );
 }
 
-function SelectField({
-  label, value, onChange, options, disabled = false,
+/* ── Sub-components ─────────────────────────────────────── */
+
+function InlineRadio({
+  options, value, onChange,
 }: {
-  label: string;
+  options: [string, string][];
   value: string;
   onChange: (v: string) => void;
-  options: [string, string][];
-  disabled?: boolean;
 }) {
   return (
-    <div>
-      <label className="block text-sm text-gray-400 mb-1">{label}</label>
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        disabled={disabled}
-        className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#53fc18]/50 transition disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        {options.map(([val, lbl]) => (
-          <option key={val} value={val} className="bg-[#1a1a2e]">{lbl}</option>
-        ))}
-      </select>
+    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+      {options.map(([v, label]) => (
+        <button
+          key={v}
+          onClick={() => onChange(v)}
+          style={{
+            padding: '2px 9px', borderRadius: 4, cursor: 'pointer', fontSize: '0.78rem',
+            border: `1px solid ${value === v ? '#53fc18' : '#2e2e2e'}`,
+            background: value === v ? 'rgba(83,252,24,0.1)' : '#161616',
+            color: value === v ? '#53fc18' : '#888',
+            transition: 'all .15s',
+          }}
+        >
+          {label}
+        </button>
+      ))}
     </div>
   );
 }
 
-function Toggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
+function Chip({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
-    <label className="flex flex-col items-center gap-2 cursor-pointer select-none">
-      <span className="text-xs text-gray-400 text-center">{label}</span>
-      <button
-        role="switch"
-        aria-checked={value}
-        onClick={() => onChange(!value)}
-        className={`w-11 h-6 rounded-full transition-colors ${value ? 'bg-[#53fc18]' : 'bg-white/20'} relative`}
-      >
-        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${value ? 'translate-x-5' : ''}`} />
-      </button>
-    </label>
+    <button
+      onClick={() => onChange(!value)}
+      className={`toggle-chip${value ? ' on' : ''}`}
+    >
+      <span className="dot" />
+      {label}
+    </button>
+  );
+}
+
+function PreviewMsg({
+  badge, username, color, msg, textBg, textBgWidth, hideNames, nlAfterName, smallCaps,
+}: {
+  badge: string | null;
+  username: string;
+  color: string;
+  msg: string;
+  textBg: boolean;
+  textBgWidth: string;
+  hideNames: boolean;
+  nlAfterName: boolean;
+  smallCaps: boolean;
+}) {
+  const wrapStyle: React.CSSProperties = {
+    display: textBg && textBgWidth === 'max' ? 'block' : 'inline-block',
+    background: textBg ? 'rgba(0,0,0,0.5)' : 'transparent',
+    borderRadius: textBg ? 3 : 0,
+    padding: textBg ? '0 4px' : 0,
+    margin: '1px 4px',
+    wordBreak: 'break-word',
+  };
+
+  return (
+    <div style={wrapStyle}>
+      {badge && (
+        <span style={{ display: 'inline-block', width: '1em', height: '1em', verticalAlign: 'middle', background: badge, borderRadius: 2, marginRight: 3, opacity: 0.85 }} />
+      )}
+      {!hideNames && (
+        <span style={{ fontWeight: 700, color, fontVariant: smallCaps ? 'small-caps' : undefined }}>{username}</span>
+      )}
+      {!hideNames && !nlAfterName && <span>:&nbsp;</span>}
+      {nlAfterName && <br />}
+      <span>{msg}</span>
+    </div>
+  );
+}
+
+function GithubIcon() {
+  return (
+    <svg height={13} width={13} viewBox="0 0 16 16" fill="currentColor">
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+    </svg>
   );
 }
