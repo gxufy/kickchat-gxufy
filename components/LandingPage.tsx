@@ -191,11 +191,11 @@ export default function LandingPage() {
           background: repeating-conic-gradient(#111827 0% 25%, #0f172a 0% 50%) 0 0 / 18px 18px;
           border: 1px solid #2a2a45; border-radius: 6px;
           overflow: hidden; position: relative;
-          min-height: 180px;
+          /* Height is driven by content — no fixed min-height.
+             The inner div is static so the box grows with font size. */
         }
         .example-inner {
-          /* Replicates the #chat_container positioning inside the preview */
-          position: absolute; bottom: 0; left: 0;
+          /* Static flow (not absolute) so box height follows content */
           width: calc(100% - 20px);
           padding: 10px;
           word-break: break-word;
@@ -447,6 +447,8 @@ export default function LandingPage() {
                 fontSize: psz.fs,
                 lineHeight: psz.lh,
                 fontVariant: smallCaps ? 'small-caps' : undefined,
+                fontWeight: 800,
+                color: 'white',
                 ...(pFilter ? { filter: pFilter } : {}),
                 ...(pStroke ? { WebkitTextStroke: pStroke } : {}),
               }}>
@@ -506,7 +508,7 @@ export default function LandingPage() {
               {copied ? '✓ Copied' : 'Copy'}
             </button>
           </div>
-          <p>Configure a new browser source on your streaming software with the given URL.</p>
+          <p>Configure a new browser source on your streaming software with the given URL. Recommended size: <strong>830 × 230</strong>.</p>
         </div>
 
         {/* ── Setup instructions ── */}
@@ -515,7 +517,7 @@ export default function LandingPage() {
           <ol className="steps">
             <li>Fill in your channel name and configure options, then click <strong>Generate</strong> / Copy</li>
             <li>In OBS: <strong>Add Source → Browser Source</strong></li>
-            <li>Paste the URL — recommended: <strong>400 × 600</strong> or wider</li>
+            <li>Paste the URL — recommended: <strong>830 × 230</strong> (matches chatis default)</li>
             <li>Enable <strong>"Shutdown source when not visible"</strong></li>
             <li>Enable <strong>"Refresh browser when scene becomes active"</strong></li>
           </ol>
