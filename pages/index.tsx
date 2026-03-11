@@ -312,6 +312,18 @@ export default function Page() {
             const data = JSON.parse(e.data);
             handle7TVDispatch(data);
           });
+          // Reconnect SSE if it errors out
+          sse.onerror = () => {
+            setTimeout(() => {
+              const sse2 = new EventSource(sseUrl);
+              sse2.addEventListener('dispatch', (e: MessageEvent) => {
+                const data = JSON.parse(e.data);
+                handle7TVDispatch(data);
+              });
+            }, 3000);
+          };
+          const prevCleanup = cleanup;
+          cleanup = () => { sse.close(); if (prevCleanup) prevCleanup(); };
         }
       }
 
@@ -319,45 +331,86 @@ export default function Page() {
       setDebugLines([...debug]);
 
       // Kick Pusher connection
-      const pusher = new Pusher('32cbd69e4b950bf97679', { cluster: 'us2' });
-      const chatroom = pusher.subscribe(`chatrooms.${channel.chatroom.id}.v2`);
-
-      chatroom.bind('App\\Events\\ChatMessageEvent', (data: any) => {
-        const msg = buildMessage(data);
-        if (msg) addMessage(msg);
+      // disableStats: avoids Pusher's stats pings which can confuse
+      // some proxies and cause silent disconnects
+      // Pusher is Kick's transport — we make it behave like chatis's
+      // ReconnectingWebSocket: auto-reconnect on every drop, re-subscribe
+      // on every reconnect, watchdog to escape stuck states.
+      const pusher = new Pusher('32cbd69e4b950bf97679', {
+        cluster: 'us2',
+        disableStats: true,
+        activityTimeout: 20000,   // ping every 20s (chatis uses ~2s reconnect interval)
+        pongTimeout: 8000,        // declare dead after 8s no pong → triggers reconnect
       });
+      const chatroomName = `chatrooms.${channel.chatroom.id}.v2`;
 
-      chatroom.bind('App\\Events\\MessageDeletedEvent', (data: any) => {
-        s.messages = s.messages.filter(m => m.id !== data.message.id);
-        setMessages([...s.messages]);
-      });
+      // Bind all message events — called once on first connect and
+      // again any time Pusher drops and re-subscribes the channel
+      function bindChannel() {
+        const ch = pusher.subscribe(chatroomName);
 
-      chatroom.bind('App\\Events\\UserBannedEvent', (data: any) => {
-        s.messages = s.messages.filter(m => m.identity.username !== data.user.username);
-        setMessages([...s.messages]);
-      });
+        ch.bind('App\\Events\\ChatMessageEvent', (data: any) => {
+          const msg = buildMessage(data);
+          if (msg) addMessage(msg);
+        });
+        ch.bind('App\\Events\\MessageDeletedEvent', (data: any) => {
+          s.messages = s.messages.filter(m => m.id !== data.message.id);
+          setMessages([...s.messages]);
+        });
+        ch.bind('App\\Events\\UserBannedEvent', (data: any) => {
+          s.messages = s.messages.filter(m => m.identity.username !== data.user.username);
+          setMessages([...s.messages]);
+        });
+        ch.bind('App\\Events\\PinnedMessageCreatedEvent', (data: any) => {
+          if (cfg.showPinEnabled) {
+            const msg = buildMessage(data.message);
+            if (msg) setPinnedMessage(msg);
+          }
+        });
+        ch.bind('App\\Events\\PinnedMessageDeletedEvent', () => {
+          setPinnedMessage(null);
+        });
+      }
 
-      chatroom.bind('App\\Events\\PinnedMessageCreatedEvent', (data: any) => {
-        if (cfg.showPinEnabled) {
-          const msg = buildMessage(data.message);
-          if (msg) setPinnedMessage(msg);
-        }
-      });
+      bindChannel();
 
-      chatroom.bind('App\\Events\\PinnedMessageDeletedEvent', () => {
-        setPinnedMessage(null);
-      });
-
+      // On every successful (re)connect: re-subscribe if the channel
+      // was dropped. Pusher unsubscribes channels on disconnect.
       pusher.connection.bind('connected', () => {
         debug.push('✅ Connected to Kick chat!');
         setDebugLines([...debug]);
         setTimeout(() => setShowDebug(false), 4000);
+        // Re-subscribe if channel was lost during disconnect
+        if (!pusher.channel(chatroomName)) {
+          bindChannel();
+        }
       });
 
-      pusher.connection.bind('error', () => {
-        debug.push('❌ Pusher connection error');
-        setDebugLines([...debug]);
+      // Track state changes — mirrors chatis's ReconnectingWebSocket
+      // onclose → reconnect behaviour. Force-reconnect from any
+      // terminal state so the overlay never silently goes dead.
+      pusher.connection.bind('state_change', ({ previous, current }: { previous: string; current: string }) => {
+        // 'disconnected' = clean close (network blip, OBS tab hidden, etc.)
+        // Pusher won't auto-reconnect from 'disconnected' unless we tell it to
+        if (current === 'disconnected') {
+          setTimeout(() => pusher.connect(), 2000); // 2s — same as chatis reconnectInterval
+        }
       });
+
+      // Watchdog: escape 'unavailable' / 'failed' (Pusher's stuck states)
+      // Checks every 10s — much tighter than before
+      let watchdog: ReturnType<typeof setInterval> | null = setInterval(() => {
+        const state = pusher.connection.state;
+        if (state === 'unavailable' || state === 'failed') {
+          pusher.disconnect();
+          setTimeout(() => pusher.connect(), 2000);
+        }
+      }, 10000);
+
+      cleanup = () => {
+        if (watchdog) { clearInterval(watchdog); watchdog = null; }
+        pusher.disconnect();
+      };
     }
 
     function handle7TVDispatch(data: any) {
@@ -392,6 +445,8 @@ export default function Page() {
       }
     }
 
+    let cleanup: (() => void) | null = null;
+
     init();
 
     let fadeInterval: ReturnType<typeof setInterval> | null = null;
@@ -404,7 +459,10 @@ export default function Page() {
       }, 1000);
     }
 
-    return () => { if (fadeInterval) clearInterval(fadeInterval); };
+    return () => {
+      if (fadeInterval) clearInterval(fadeInterval);
+      if (cleanup) cleanup();
+    };
   }, [router.isReady]);
 
   if (!ready) return null;
