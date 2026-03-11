@@ -31,9 +31,10 @@ const QuerySchema = z.object({
   showPinEnabled: z.string().optional().transform(v => v === 'true'),
   textBackgroundEnabled: z.string().optional().transform(v => v === 'true'),
   textBackgroundWidth: z.string().optional().transform(v => v === 'max' ? 'max' : 'min'),
+  font: z.string().optional().transform(v => v ?? 'default'),
   stroke: z.string().optional().transform(v => ['thin','medium','thick','thicker'].includes(v ?? '') ? v! : 'none'),
   emoteScale: z.string().optional().transform(v => { const n = parseFloat(v ?? ''); return isNaN(n) ? 1 : n; }),
-  fade: z.string().optional().transform(v => { const n = parseInt(v ?? ''); return isNaN(n) ? false as const : n; }),
+  fade: z.string().optional().transform(v => { const n = parseInt(v ?? ''); return isNaN(n) ? (false as const) : n; }),
   smallCaps: z.string().optional().transform(v => v === 'true'),
   nlAfterName: z.string().optional().transform(v => v === 'true'),
   hideNames: z.string().optional().transform(v => v === 'true'),
@@ -393,7 +394,7 @@ export default function Page() {
 
     init();
 
-    // Fade old messages out after N seconds if fade is set
+    // Fade old messages if fade= is set
     let fadeInterval: ReturnType<typeof setInterval> | null = null;
     if (cfg.fade !== false) {
       const fadeMs = (cfg.fade as number) * 1000;
@@ -404,9 +405,7 @@ export default function Page() {
       }, 1000);
     }
 
-    return () => {
-      if (fadeInterval) clearInterval(fadeInterval);
-    };
+    return () => { if (fadeInterval) clearInterval(fadeInterval); };
   }, [router.isReady]);
 
   if (!ready) return null;
