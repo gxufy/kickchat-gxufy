@@ -511,7 +511,7 @@ export default function Page() {
           }
 
           case 'yt': {
-            if (access < 1000) break;
+            if (access < 500) break;
             const ytPresets: Record<string, string> = {
               'bruh': '2ZIpFytCSVc',
               'vine-boom': '_vBVGjFdwk4',
