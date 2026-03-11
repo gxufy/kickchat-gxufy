@@ -544,7 +544,7 @@ export default function LandingPage() {
               <tr><td>!kickchat show / hide</td><td>Shows or hides the chat overlay</td><td className="cmd-access">Mod+</td></tr>
               <tr><td>!kickchat refresh emotes</td><td>Reloads 7TV emotes without refreshing the page</td><td className="cmd-access">Mod+</td></tr>
               <tr><td>!kickchat img [url] -t [sec] -o [opacity]</td><td>Displays an image overlay for N seconds</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!kickchat yt [url or preset] -t [sec]</td><td>Plays a YouTube video/sound. Presets: bruh, vine-boom, rickroll, dc-ping, win-error</td><td className="cmd-access">Broadcaster</td></tr>
+              <tr><td>!kickchat yt [url or preset] -t [sec]</td><td>Plays a YouTube video/sound. Presets: bruh, vine-boom, rickroll, dc-ping, win-error</td><td className="cmd-access">Mod+</td></tr>
               <tr><td>!kickchat tts [message] -v [vol]</td><td>Text-to-speech via StreamElements TTS</td><td className="cmd-access">Mod+</td></tr>
             </tbody>
           </table>
