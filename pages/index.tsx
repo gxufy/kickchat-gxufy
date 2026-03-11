@@ -38,6 +38,7 @@ const QuerySchema = z.object({
   smallCaps: z.string().optional().transform(v => v === 'true'),
   nlAfterName: z.string().optional().transform(v => v === 'true'),
   hideNames: z.string().optional().transform(v => v === 'true'),
+  botNames: z.string().optional().transform(v => v ?? ''),
 });
 
 export type OverlayConfig = z.infer<typeof QuerySchema>;
@@ -274,7 +275,23 @@ export default function Page() {
       }
     }
 
+    // Global well-known bots (matches chatis list)
+    const KNOWN_BOTS = new Set([
+      'streamelements','streamlabs','nightbot','moobot',
+      'titlechange_bot','supibot','pajbot','huwobot',
+      'oshbt','spanixbot','potatbotat','streamqbot','twirapp',
+      'fossabot','wizebot','botisimo','sery_bot','soundalerts',
+    ]);
+    const extraBots = new Set(
+      (cfg.botNames || '').split(',').flatMap((s: string) => s.trim().split(' ')).filter(Boolean).map((s: string) => s.toLowerCase())
+    );
+    function isBot(username: string) {
+      const u = username.toLowerCase();
+      return KNOWN_BOTS.has(u) || extraBots.has(u);
+    }
+
     function addMessage(msg: ParsedMessage) {
+      if (isBot(msg.identity.username)) return;
       s.messages.push(msg);
       if (s.messages.length > 100) s.messages.shift();
       setMessages([...s.messages]);
@@ -350,6 +367,7 @@ export default function Page() {
         const ch = pusher.subscribe(chatroomName);
 
         ch.bind('App\\Events\\ChatMessageEvent', (data: any) => {
+          handleCommand(data);
           const msg = buildMessage(data);
           if (msg) addMessage(msg);
         });
@@ -373,6 +391,157 @@ export default function Page() {
       }
 
       bindChannel();
+
+      // ── !kickchat command handler ──
+      // Access: broadcaster=1000, mod=500, viewer=0
+      // Mirrors chatis's !chatis command system
+      function getAccessLevel(data: any): number {
+        const badges: any[] = data.sender?.identity?.badges ?? [];
+        for (const b of badges) {
+          if (b.type === 'broadcaster') return 1000;
+        }
+        for (const b of badges) {
+          if (b.type === 'moderator') return 500;
+        }
+        // Always give broadcaster by username as fallback
+        if ((data.sender?.username ?? '').toLowerCase() === cfg.channel.toLowerCase()) return 1000;
+        return 0;
+      }
+
+      // Float overlay system — mirrors chatis showFloat/removeFloat
+      const floats: Record<number, { el: HTMLElement; timer: ReturnType<typeof setTimeout> | null }> = {};
+      function showFloat(id: number, html: string, timeoutMs = 3000, opacity = 1) {
+        removeFloat(id);
+        const el = document.createElement('div');
+        el.style.cssText = `position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;
+          background:rgba(0,0,0,0.85);color:#fff;padding:18px 28px;border-radius:10px;
+          font-size:1.1rem;font-weight:700;text-align:center;white-space:pre-line;
+          border:2px solid #53fc18;font-family:sans-serif;pointer-events:none;opacity:${opacity};`;
+        el.innerHTML = html;
+        document.body.appendChild(el);
+        floats[id] = {
+          el,
+          timer: timeoutMs > 0 ? setTimeout(() => removeFloat(id), timeoutMs) : null,
+        };
+      }
+      function removeFloat(id: number) {
+        if (floats[id]) {
+          if (floats[id].timer) clearTimeout(floats[id].timer!);
+          floats[id].el.remove();
+          delete floats[id];
+        }
+      }
+      function removeAllFloats() {
+        Object.keys(floats).forEach(id => removeFloat(Number(id)));
+      }
+
+      // Chat overlay visibility
+      let chatVisible = true;
+      function setChatVisible(v: boolean) {
+        chatVisible = v;
+        const el = document.getElementById('chat_container');
+        if (el) el.style.display = v ? '' : 'none';
+      }
+
+      function handleCommand(rawData: any) {
+        const text: string = rawData.content ?? '';
+        if (!text.toLowerCase().startsWith('!kickchat')) return;
+        const access = getAccessLevel(rawData);
+        if (access < 500) return;
+
+        const args = text.trim().split(/\s+/);
+        const cmd = (args[1] ?? '').toLowerCase();
+
+        switch (cmd) {
+          case 'ping':
+            showFloat(1, 'Pong!
+kickchat-gxufy', 3000);
+            break;
+
+          case 'reload':
+            window.location.reload();
+            break;
+
+          case 'stop':
+            removeAllFloats();
+            break;
+
+          case 'show':
+            setChatVisible(true);
+            break;
+
+          case 'hide':
+            setChatVisible(false);
+            break;
+
+          case 'refresh':
+            if (!args[2] || args[2] === 'emotes') {
+              // Re-fetch 7TV emotes
+              import('../lib/kick').then(async ({ getSevenTVChannelEmotes, getSevenTVGlobalEmotes }) => {
+                const globals = await getSevenTVGlobalEmotes();
+                s.emotes = [...globals];
+                const ch = s.channel;
+                if (ch) {
+                  const { emotes: ce } = await getSevenTVChannelEmotes(ch.user_id.toString());
+                  s.emotes.push(...ce);
+                }
+              }).catch(() => {});
+            }
+            break;
+
+          case 'img': {
+            if (args[2] === 'clear') { removeFloat(4); break; }
+            const urlMatch = text.match(/https?:\/\/\S+/);
+            const link = urlMatch ? urlMatch[0] : null;
+            if (!link) break;
+            const timeout = parseFloat((text.match(/-t\s+([\d.]+)/) || [])[1]) * 1000 || 5000;
+            const opacity = parseFloat((text.match(/-o\s+([\d.]+)/) || [])[1]) || 1;
+            const el = document.createElement('div');
+            el.style.cssText = `position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9998;pointer-events:none;`;
+            el.innerHTML = `<img src="${link}" style="max-width:90vw;max-height:80vh;opacity:${opacity};border-radius:8px;" />`;
+            document.body.appendChild(el);
+            floats[4] = { el, timer: setTimeout(() => removeFloat(4), timeout) };
+            break;
+          }
+
+          case 'yt': {
+            if (access < 1000) break;
+            const ytPresets: Record<string, string> = {
+              'bruh': '2ZIpFytCSVc',
+              'vine-boom': '_vBVGjFdwk4',
+              'dc-ping': 'jiWj1zZlRjQ',
+              'rickroll': 'dQw4w9WgXcQ',
+              'win-error': 'v76-ChTSLJk',
+            };
+            const urlMatch = text.match(/(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/watch\?v=)([\w\-]+)/);
+            const ytId = urlMatch ? urlMatch[1] : ytPresets[args[2]] ?? null;
+            if (!ytId) break;
+            const timeout = parseFloat((text.match(/-t\s+([\d.]+)/) || [])[1]) * 1000 || 5000;
+            const mute = text.includes('-m');
+            const el = document.createElement('div');
+            el.style.cssText = `position:fixed;bottom:0;right:0;z-index:9998;pointer-events:none;`;
+            el.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1${mute ? '&mute=1' : ''}&rel=0"
+              width="320" height="180" frameborder="0" allow="autoplay" style="border-radius:8px;"></iframe>`;
+            document.body.appendChild(el);
+            floats[5] = { el, timer: setTimeout(() => removeFloat(5), timeout) };
+            break;
+          }
+
+          case 'tts': {
+            const volMatch = text.match(/-v\s+([\d.]+)/);
+            const volume = parseFloat((volMatch || [])[1]) || 0.5;
+            let ttsText = text.replace(/^!kickchat\s+tts\s+/i, '').replace(/-v\s+[\d.]+/, '').trim();
+            if (!ttsText) break;
+            // StreamElements TTS (free, no key needed)
+            const voice = 'Brian';
+            const ttsUrl = `https://api.streamelements.com/kappa/v2/speech?voice=${voice}&text=${encodeURIComponent(ttsText)}`;
+            const audio = new Audio(ttsUrl);
+            audio.volume = Math.min(1, Math.max(0, volume));
+            audio.play().catch(() => {});
+            break;
+          }
+        }
+      }
 
       // On every successful (re)connect: re-subscribe if the channel
       // was dropped. Pusher unsubscribes channels on disconnect.
