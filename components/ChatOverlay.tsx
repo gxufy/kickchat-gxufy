@@ -211,12 +211,23 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
           .ck-bw img.ck-badge-img:last-of-type { margin-right: ${sz.badgeLastMR}; }
 
           /* Emote sizing — exact from size_*.css .emote */
-          .ck-body img {
+          .ck-body img,
+          .ck-body img.ck-emote {
             max-width:      ${emoteMaxW};
             max-height:     ${emoteMaxH};
+            height:         auto;
+            width:          auto;
             margin-right:   ${sz.emoteMR};
             vertical-align: middle;
             display:        inline-block;
+          }
+
+          /* Upscale emotes — fill full line-height (chatis upscale class) */
+          .ck-body img.ck-upscale {
+            max-height:     ${sz.upscaleH};
+            max-width:      ${sz.emoteMaxW};
+            height:         ${sz.upscaleH};
+            width:          auto;
           }
 
           .ck-colon { margin-right: ${sz.colonMR}; }
