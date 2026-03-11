@@ -111,7 +111,7 @@ export default function Page() {
               nodes.push(
                 <img
                   key={`ke-${i}-${m[2]}`}
-                  className="inline-flex max-h-7 h-auto w-auto pr-1"
+                  className="ck-emote"
                   src={`https://files.kick.com/emotes/${m[2]}/fullsize`}
                   alt="emote"
                   height={28}
@@ -131,7 +131,7 @@ export default function Page() {
             zeroWidths.push(
               <img
                 key={`zw-${i}`}
-                className="max-h-7 h-auto w-auto m-auto row-[1] col-[1]"
+                className={`ck-emote${emotes[nextIdx].upscale ? ' ck-upscale' : ''} m-auto row-[1] col-[1]`}
                 src={emotes[nextIdx].image}
                 alt={emotes[nextIdx].name}
                 height={emotes[nextIdx].height}
@@ -144,7 +144,7 @@ export default function Page() {
             nodes.push(
               <img
                 key={`em-${i}`}
-                className="inline-flex max-h-7 h-auto w-auto pr-1"
+                className={`ck-emote${emote.upscale ? ' ck-upscale' : ''}`}
                 src={emote.image}
                 alt={emote.name}
                 height={emote.height}
@@ -154,7 +154,7 @@ export default function Page() {
           } else {
             nodes.push(
               <span key={`zws-${i}`} className="inline-grid align-middle pr-1">
-                <img className="max-h-7 h-auto w-auto m-auto row-[1] col-[1]" src={emote.image} alt={emote.name} height={emote.height} width={emote.width} />
+                <img className={`ck-emote${emote.upscale ? ' ck-upscale' : ''} m-auto row-[1] col-[1]`} src={emote.image} alt={emote.name} height={emote.height} width={emote.width} />
                 {zeroWidths}
               </span>
             );
@@ -492,13 +492,19 @@ export default function Page() {
           case 'img': {
             if (args[2] === 'clear') { removeFloat(4); break; }
             const urlMatch = text.match(/https?:\/\/\S+/);
-            const link = urlMatch ? urlMatch[0] : null;
+            // If no URL, try to resolve as a 7TV emote name — same as chatis img fallback
+            const emoteName = args[2] ?? '';
+            const emoteLink = urlMatch
+              ? urlMatch[0]
+              : s.emotes.find(e => e.name === emoteName)?.image ?? null;
+            const link = emoteLink;
             if (!link) break;
             const timeout = (parseFloat((text.match(/-t\s+([\d.]+)/) || [])[1] ?? '') || 5) * 1000;
             const opacity = parseFloat((text.match(/-o\s+([\d.]+)/) || [])[1] ?? '') || 1;
+            // Stretch to fill entire viewport — exact chatis behaviour (width=vw, height=vh, no aspect ratio)
             const el = document.createElement('div');
-            el.style.cssText = `position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9998;pointer-events:none;`;
-            el.innerHTML = `<img src="${link}" style="max-width:90vw;max-height:80vh;opacity:${opacity};border-radius:8px;" />`;
+            el.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9998;pointer-events:none;';
+            el.innerHTML = `<img src="${link}" style="width:100%;height:100%;object-fit:fill;opacity:${opacity};" />`;
             document.body.appendChild(el);
             floats[4] = { el, timer: setTimeout(() => removeFloat(4), timeout) };
             break;
