@@ -1,41 +1,28 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
-/* ─── Font options matching ChatOverlay's FONT_FAMILIES ─── */
-const FONTS: [string, string][] = [
-  ['default',     'Default (system)'],
-  ['baloo',       'Baloo 2'],
-  ['segoe',       'Segoe UI (Chatterino)'],
-  ['roboto',      'Roboto'],
-  ['lato',        'Lato'],
-  ['noto',        'Noto Sans'],
-  ['sourcecode',  'Source Code Pro'],
-  ['impact',      'Impact'],
-  ['comfortaa',   'Comfortaa'],
-  ['dancing',     'Dancing Script'],
-  ['indieflower', 'Indie Flower'],
-  ['opensans',    'Open Sans'],
+/* ─── Exact fonts from chatis CSS files ─────────────────── */
+const FONTS: [string, string, string][] = [
+  // [param value, display label, CSS font-family]
+  ['default',     'Default',                    'inherit'],
+  ['baloo',       'Baloo Tammudu',               "'Baloo Tammudu 2', cursive"],
+  ['segoe',       'Segoe UI (Chatterino)',        "'Segoe UI', sans-serif"],
+  ['roboto',      'Roboto',                      "'Roboto', sans-serif"],
+  ['lato',        'Lato',                        "'Lato', sans-serif"],
+  ['noto',        'Noto Sans',                   "'Noto Sans JP', sans-serif"],
+  ['sourcecode',  'Source Code Pro',             "'Source Code Pro', monospace"],
+  ['impact',      'Impact',                      "'Impact', sans-serif"],
+  ['comfortaa',   'Comfortaa',                   "'Comfortaa', cursive"],
+  ['dancing',     'Dancing Script',              "'Dancing Script', cursive"],
+  ['indieflower', 'Indie Flower',                "'Indie Flower', cursive"],
+  ['opensans',    'Open Sans',                   "'Open Sans', sans-serif"],
+  ['alsina',      'Alsina Ultrajada (Vsauce)',   "'Alsina', cursive"],
 ];
-
-const FONT_CSS: Record<string, string> = {
-  default:     'inherit',
-  segoe:       '"Segoe UI", sans-serif',
-  roboto:      '"Roboto", sans-serif',
-  lato:        '"Lato", sans-serif',
-  noto:        '"Noto Sans", sans-serif',
-  sourcecode:  '"Source Code Pro", monospace',
-  impact:      'Impact, fantasy',
-  comfortaa:   '"Comfortaa", cursive',
-  dancing:     '"Dancing Script", cursive',
-  indieflower: '"Indie Flower", cursive',
-  opensans:    '"Open Sans", sans-serif',
-  baloo:       '"Baloo 2", cursive',
-};
 
 /* ─── Preview messages ─────────────────────────────────── */
 const PREVIEW = [
   { badge: '#53fc18', username: 'Broadcaster',   color: '#53fc18', msg: 'Welcome to the stream! PogChamp' },
-  { badge: '#5b87ff', username: 'ModeratorUser', color: '#5b87ff', msg: 'chat is so hype tonight KEKW' },
+  { badge: '#5b87ff', username: 'ModeratorUser', color: '#5b87ff', msg: 'chat is so hype KEKW' },
   { badge: null,      username: 'chatter123',    color: '#D399FF', msg: 'Hello, this is what your chat looks like! 👋' },
   { badge: null,      username: 'subscriber99',  color: '#FF8C00', msg: 'Great stream bro LUL' },
 ];
@@ -64,9 +51,9 @@ export default function LandingPage() {
   useEffect(() => { setBaseUrl(window.location.origin); }, []);
 
   const params = new URLSearchParams({
-    channel:                channel || 'yourchannel',
-    sevenTVEmotesEnabled:   String(sevenTVEmotes),
-    sevenTVCosmeticsEnabled:String(sevenTVCosmetics),
+    channel:                 channel || 'yourchannel',
+    sevenTVEmotesEnabled:    String(sevenTVEmotes),
+    sevenTVCosmeticsEnabled: String(sevenTVCosmetics),
     theme,
     textSize,
     font,
@@ -74,24 +61,25 @@ export default function LandingPage() {
     stroke,
     animation,
     ...(fade !== '' ? { fade } : {}),
-    showPinEnabled:         String(showPin),
-    textBackgroundEnabled:  String(textBg),
-    textBackgroundWidth:    textBgWidth,
+    showPinEnabled:          String(showPin),
+    textBackgroundEnabled:   String(textBg),
+    textBackgroundWidth:     textBgWidth,
     emoteScale,
-    smallCaps:              String(smallCaps),
-    nlAfterName:            String(nlAfterName),
-    hideNames:              String(hideNames),
+    smallCaps:               String(smallCaps),
+    nlAfterName:             String(nlAfterName),
+    hideNames:               String(hideNames),
   });
 
   const overlayUrl = `${baseUrl}/?${params.toString()}`;
-
   const copy = () => {
     navigator.clipboard.writeText(overlayUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  /* ── Preview computed styles ── */
+  // Current font CSS for preview
+  const currentFontCSS = FONTS.find(([v]) => v === font)?.[2] ?? 'inherit';
+
   const previewFontSize =
     textSize === 'small' ? '0.875rem' : textSize === 'large' ? '1.3rem' : '1.05rem';
   const previewShadow =
@@ -103,17 +91,23 @@ export default function LandingPage() {
     stroke === 'medium'  ? { WebkitTextStroke: '2px black' } :
     stroke === 'thick'   ? { WebkitTextStroke: '3px black' } :
     stroke === 'thicker' ? { WebkitTextStroke: '4px black' } : {};
-  const previewFont = FONT_CSS[font] ?? 'inherit';
 
   return (
     <>
       <Head>
         <title>Kick Chat Overlay</title>
         <meta name="description" content="Free Kick chat overlay for OBS with 7TV support." />
-        {/* Load all Google Fonts used in the picker */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&family=Comfortaa:wght@400;700&family=Dancing+Script:wght@400;700&family=Indie+Flower&family=Lato:wght@400;700&family=Noto+Sans:wght@400;700&family=Open+Sans:wght@400;700&family=Roboto:wght@400;700&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet" />
+        {/* All Google Fonts used by chatis */}
+        <link href="https://fonts.googleapis.com/css2?family=Baloo+Tammudu+2:wght@400;700&family=Comfortaa:wght@300;400;700&family=Dancing+Script:wght@400;700&family=Indie+Flower&family=Lato:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;700&family=Open+Sans:wght@400;700&family=Roboto:wght@400;700&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet" />
+        {/* Alsina — custom font from chatis CDN */}
+        <style>{`
+          @font-face {
+            font-family: Alsina;
+            src: url(https://chatis.is2511.com/v2/styles/Alsina_Ultrajada.ttf);
+          }
+        `}</style>
       </Head>
 
       <style>{`
@@ -165,23 +159,23 @@ export default function LandingPage() {
         {/* ── Left: controls ── */}
         <div>
           <p style={{ color: '#555', fontSize: '0.78rem', marginTop: 0, marginBottom: 14, lineHeight: 1.6 }}>
-            Clean Kick chat overlay for OBS/Streamlabs with 7TV emotes, name-paints, zero-width stacking and live emote updates.
+            Clean Kick chat overlay for OBS/Streamlabs — 7TV emotes, name-paints, zero-width stacking, live emote updates.
           </p>
 
-          {/* Channel */}
           <div className="sec">Channel *</div>
           <input type="text" placeholder="e.g. xqc" value={channel}
             onChange={e => setChannel(e.target.value)}
             style={{ width: '100%', padding: '6px 10px', fontSize: '0.88rem', marginBottom: 4 }} />
 
-          {/* ── Appearance ── */}
           <div className="sec">Appearance</div>
 
+          {/* Font picker — uses actual font-family in the option so it previews */}
           <div className="row">
             <span className="lbl">Font</span>
-            <select value={font} onChange={e => setFont(e.target.value)} style={{ flex: 1, fontFamily: FONT_CSS[font] }}>
-              {FONTS.map(([v, l]) => (
-                <option key={v} value={v} style={{ fontFamily: FONT_CSS[v] }}>{l}</option>
+            <select value={font} onChange={e => setFont(e.target.value)}
+              style={{ flex: 1, fontFamily: currentFontCSS }}>
+              {FONTS.map(([v, label, css]) => (
+                <option key={v} value={v} style={{ fontFamily: css }}>{label}</option>
               ))}
             </select>
           </div>
@@ -213,7 +207,6 @@ export default function LandingPage() {
             <Radios options={[['dark','Dark'],['light','Light'],['system','System']]} value={theme} onChange={setTheme} />
           </div>
 
-          {/* ── Behaviour ── */}
           <div className="sec">Behaviour</div>
 
           <div className="row">
@@ -230,28 +223,24 @@ export default function LandingPage() {
 
           <div className="row" style={{ alignItems: 'flex-start' }}>
             <span className="lbl" style={{ paddingTop: 3 }}>Text Background</span>
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <Chip label="Enable" value={textBg} onChange={setTextBg} />
               {textBg && (
-                <span style={{ marginLeft: 8 }}>
-                  <Radios options={[['min','Fit content'],['max','Full width']]} value={textBgWidth} onChange={setTextBgWidth} />
-                </span>
+                <Radios options={[['min','Fit content'],['max','Full width']]} value={textBgWidth} onChange={setTextBgWidth} />
               )}
             </div>
           </div>
 
-          {/* ── Feature toggles ── */}
           <div className="sec">Features</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-            <Chip label="7TV Emotes"      value={sevenTVEmotes}    onChange={setSevenTVEmotes} />
-            <Chip label="7TV Cosmetics"   value={sevenTVCosmetics} onChange={setSevenTVCosmetics} />
-            <Chip label="Pinned Messages" value={showPin}          onChange={setShowPin} />
-            <Chip label="Small Caps"      value={smallCaps}        onChange={setSmallCaps} />
-            <Chip label="Newline after name" value={nlAfterName}   onChange={setNlAfterName} />
-            <Chip label="Hide Usernames"  value={hideNames}        onChange={setHideNames} />
+            <Chip label="7TV Emotes"         value={sevenTVEmotes}    onChange={setSevenTVEmotes} />
+            <Chip label="7TV Cosmetics"      value={sevenTVCosmetics} onChange={setSevenTVCosmetics} />
+            <Chip label="Pinned Messages"    value={showPin}          onChange={setShowPin} />
+            <Chip label="Small Caps"         value={smallCaps}        onChange={setSmallCaps} />
+            <Chip label="Newline after name" value={nlAfterName}      onChange={setNlAfterName} />
+            <Chip label="Hide Usernames"     value={hideNames}        onChange={setHideNames} />
           </div>
 
-          {/* ── URL ── */}
           <div className="sec">Your Overlay URL</div>
           <div style={{ display: 'flex', gap: 8 }}>
             <code style={{
@@ -270,10 +259,9 @@ export default function LandingPage() {
             </button>
           </div>
 
-          {/* ── OBS setup ── */}
           <div className="sec">OBS Setup</div>
           <ol style={{ color: '#555', fontSize: '0.77rem', lineHeight: 2.1, paddingLeft: 18, margin: 0 }}>
-            <li>Configure your settings above and copy the URL</li>
+            <li>Configure your settings and copy the URL above</li>
             <li>In OBS: <strong style={{ color: '#aaa' }}>Add Source → Browser Source</strong></li>
             <li>Paste the URL — recommended: <strong style={{ color: '#aaa' }}>400 × 600</strong></li>
             <li>Enable <strong style={{ color: '#aaa' }}>"Shutdown source when not visible"</strong></li>
@@ -284,7 +272,6 @@ export default function LandingPage() {
         {/* ── Right: live preview ── */}
         <div>
           <div className="sec" style={{ marginTop: 0 }}>Live Preview</div>
-
           <div className="preview-bg" style={{
             borderRadius: 6, border: '1px solid #1e1e1e',
             overflow: 'hidden', height: 300, position: 'relative',
@@ -292,10 +279,10 @@ export default function LandingPage() {
             <div style={{
               position: 'absolute', bottom: 0, left: 0, width: '100%', padding: '4px 0',
               fontSize: previewFontSize,
-              fontFamily: previewFont,
+              fontFamily: currentFontCSS,
               color: '#fff',
-              textShadow: previewShadow !== 'none' ? previewShadow : undefined,
               lineHeight: 1.5,
+              textShadow: previewShadow !== 'none' ? previewShadow : undefined,
               ...previewStroke,
             }}>
               {PREVIEW.map((m, i) => (
@@ -308,14 +295,12 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Font preview label */}
-          <div style={{ marginTop: 6, fontSize: '0.7rem', color: '#444', textAlign: 'right' }}>
-            Font: <span style={{ color: '#666', fontFamily: previewFont }}>
-              {FONTS.find(([v]) => v === font)?.[1] ?? 'Default'}
+          <div style={{ marginTop: 5, fontSize: '0.69rem', color: '#444', textAlign: 'right' }}>
+            Font: <span style={{ color: '#555', fontFamily: currentFontCSS }}>
+              {FONTS.find(([v]) => v === font)?.[1]}
             </span>
           </div>
 
-          {/* Feature list */}
           <div style={{
             background: '#0f0f0f', border: '1px solid #1a1a1a', borderRadius: 6,
             padding: '11px 14px', marginTop: 10,
@@ -326,7 +311,7 @@ export default function LandingPage() {
               '7TV cosmetics — badges & name-paints',
               'Zero-width emote stacking',
               'Sub, Mod, VIP, Broadcaster badges',
-              'Slide / Fade / None message animations',
+              'Batched slide / fade / none animations',
               'Live emote updates via 7TV EventAPI',
               'Pinned message banner',
               'Dark / Light / System theme',
@@ -346,8 +331,7 @@ export default function LandingPage() {
   );
 }
 
-/* ── Shared sub-components ─────────────────────────────── */
-
+/* ── Sub-components ─────────────────────────────────────── */
 function Radios({ options, value, onChange }: {
   options: [string, string][];
   value: string;
@@ -375,17 +359,17 @@ function PreviewMsg({ badge, username, color, msg, textBg, textBgWidth, hideName
   textBg: boolean; textBgWidth: string; hideNames: boolean; nlAfterName: boolean; smallCaps: boolean;
 }) {
   const wrapStyle: React.CSSProperties = {
-    display: 'block',
+    display: 'inline-block',
     margin: '1px 4px',
     padding: textBg ? '0 4px' : 0,
     background: textBg ? 'rgba(0,0,0,0.5)' : 'transparent',
     borderRadius: textBg ? 3 : 0,
-    width: textBg && textBgWidth === 'max' ? 'calc(100% - 8px)' : 'fit-content',
+    width: textBg && textBgWidth === 'max' ? 'calc(100% - 8px)' : undefined,
     wordBreak: 'break-word',
   };
 
   return (
-    <p style={{ margin: 0, padding: 0 }}>
+    <p style={{ margin: '1px 0', padding: 0 }}>
       <span style={wrapStyle}>
         {badge && (
           <span style={{
