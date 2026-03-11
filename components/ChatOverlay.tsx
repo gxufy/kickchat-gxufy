@@ -10,39 +10,51 @@ interface Props {
   showDebug: boolean;
 }
 
+/* ─── Font map (matches LandingPage options) ───────────── */
+const FONT_FAMILIES: Record<string, string> = {
+  default:      'inherit',
+  segoe:        '"Segoe UI", sans-serif',
+  roboto:       '"Roboto", sans-serif',
+  lato:         '"Lato", sans-serif',
+  noto:         '"Noto Sans", sans-serif',
+  sourcecode:   '"Source Code Pro", monospace',
+  impact:       'Impact, fantasy',
+  comfortaa:    '"Comfortaa", cursive',
+  dancing:      '"Dancing Script", cursive',
+  indieflower:  '"Indie Flower", cursive',
+  opensans:     '"Open Sans", sans-serif',
+  baloo:        '"Baloo 2", cursive',
+};
+
 /* ─── Style helpers ─────────────────────────────────────── */
-
-function getSizeStyle(size: string): React.CSSProperties {
-  if (size === 'small')  return { fontSize: '0.85rem',  lineHeight: '1.5' };
-  if (size === 'large')  return { fontSize: '1.3rem',   lineHeight: '1.5' };
-  return                         { fontSize: '1.05rem', lineHeight: '1.5' };
+function getFontSize(size: string) {
+  if (size === 'small')  return '0.875rem';
+  if (size === 'large')  return '1.3rem';
+  return '1.05rem';
 }
 
-function getEmoteMaxHeight(size: string): number {
-  if (size === 'small')  return 25;
-  if (size === 'large')  return 52;
-  return 36;
+// Badge height = slightly larger than cap-height of the font.
+// ChatIS uses ~18–20px badges regardless of font size.
+// We derive it from the font size so it scales proportionally.
+function getBadgeSize(size: string) {
+  if (size === 'small')  return '1.1em';
+  if (size === 'large')  return '1.1em';
+  return '1.1em';  // always 1.1× the current font size — same ratio chatis uses
 }
 
-function getShadow(shadow: string): string {
+function getShadow(shadow: string) {
   if (shadow === 'small')  return '1px 1px 2px #000, -1px -1px 2px #000';
   if (shadow === 'medium') return '1px 1px 3px #000, -1px -1px 3px #000, 0 0 5px #000';
-  if (shadow === 'large')  return '1px 1px 4px #000, -1px -1px 4px #000, 0 0 10px #000, 0 0 14px #000';
-  return '';
+  if (shadow === 'large')  return '1px 1px 5px #000, -1px -1px 5px #000, 0 0 10px #000, 0 0 15px rgba(0,0,0,0.6)';
+  return 'none';
 }
 
 function getStroke(stroke: string): React.CSSProperties {
-  const m: Record<string, string> = { thin: '1px', medium: '2px', thick: '3px', thicker: '4px' };
-  if (m[stroke]) return { WebkitTextStroke: `${m[stroke]} black`, paintOrder: 'stroke fill' as any };
-  return {};
+  const map: Record<string, string> = { thin: '1px', medium: '2px', thick: '3px', thicker: '4px' };
+  return map[stroke] ? { WebkitTextStroke: `${map[stroke]} black`, paintOrder: 'stroke fill' as any } : {};
 }
 
-/* ─── ChatIS-style slide animation ──────────────────────────
-   ChatIS measures the real content height in a hidden div,
-   then animates a wrapper from 0 to that height in 150ms
-   before replacing with auto. This is smoother than pure CSS
-   transitions because there's no FOUC on wrapping long lines.
-──────────────────────────────────────────────────────────── */
+/* ─── ChatIS-style slide: measure → animate 0→h → auto ── */
 function SlideMessage({ children, cls }: { children: React.ReactNode; cls: string }) {
   const [height, setHeight] = useState<number | 'auto'>(0);
   const innerRef = useRef<HTMLDivElement>(null);
@@ -59,16 +71,12 @@ function SlideMessage({ children, cls }: { children: React.ReactNode; cls: strin
   }, []);
 
   return (
-    <div
-      style={{
-        height: height === 'auto' ? 'auto' : height,
-        overflow: 'hidden',
-        transition: height === 'auto' ? 'none' : 'height 150ms ease-out',
-      }}
-    >
-      <div ref={innerRef} className={cls}>
-        {children}
-      </div>
+    <div style={{
+      height: height === 'auto' ? 'auto' : height,
+      overflow: 'hidden',
+      transition: height === 'auto' ? 'none' : 'height 150ms ease-out',
+    }}>
+      <div ref={innerRef} className={cls}>{children}</div>
     </div>
   );
 }
@@ -86,58 +94,47 @@ function FadeMessage({ children, cls }: { children: React.ReactNode; cls: string
 }
 
 /* ─── Overlay root ──────────────────────────────────────── */
-
-export default function ChatOverlay({
-  config,
-  messages,
-  pinnedMessage,
-  debugLines,
-  showDebug,
-}: Props) {
-  const sizeStyle   = getSizeStyle(config.textSize);
-  const emoteH      = getEmoteMaxHeight(config.textSize);
-  const shadowVal   = getShadow(config.textShadow);
+export default function ChatOverlay({ config, messages, pinnedMessage, debugLines, showDebug }: Props) {
+  const fontSize   = getFontSize(config.textSize);
+  const badgeSize  = getBadgeSize(config.textSize);
+  const shadowVal  = getShadow(config.textShadow);
   const strokeStyle = getStroke((config as any).stroke ?? 'none');
+  const fontFamily = FONT_FAMILIES[(config as any).font ?? 'default'] ?? 'inherit';
 
-  const globalStyle: React.CSSProperties = {
-    ...sizeStyle,
-    ...strokeStyle,
+  const containerStyle: React.CSSProperties = {
+    fontSize,
+    fontFamily,
+    lineHeight: 1.5,
     color: '#fff',
-    ...(shadowVal ? { textShadow: shadowVal } : {}),
+    ...strokeStyle,
+    ...(shadowVal !== 'none' ? { textShadow: shadowVal } : {}),
   };
 
   const wrapCls = (msg: ParsedMessage) => {
     const bg = config.textBackgroundEnabled ? 'bg-black/50 rounded-sm px-1' : '';
     const w  = config.textBackgroundEnabled && config.textBackgroundWidth === 'max' ? 'w-full' : 'w-fit';
-    return `mx-1 my-0.5 ${bg} ${w}`.trim();
+    return `mx-1 my-px ${bg} ${w}`.trim();
   };
 
   const line = (msg: ParsedMessage) => (
-    <MessageLine msg={msg} emoteH={emoteH} shadow={shadowVal} />
+    <MessageLine msg={msg} badgeSize={badgeSize} shadowVal={shadowVal} strokeStyle={strokeStyle} />
   );
 
   return (
-    <div className="fixed inset-0 overflow-hidden" style={globalStyle}>
-      <style>{`
-        /* Emotes */
-        .emote { max-height: ${emoteH}px !important; vertical-align: middle; display: inline-block; }
-        /* Badges — always 1em tall, vertically centred */
-        .chat-badge { height: 1em; width: auto; vertical-align: middle; display: inline-block; }
-      `}</style>
-
+    <div className="fixed inset-0 overflow-hidden" style={containerStyle}>
       {/* Debug */}
       {showDebug && debugLines.length > 0 && (
-        <div className="absolute top-3 left-3 text-sm">
-          {debugLines.map((l, i) => <p key={i} className="leading-5">{l}</p>)}
+        <div className="absolute top-3 left-3 text-sm bg-black/60 rounded p-1">
+          {debugLines.map((l, i) => <p key={i} className="leading-5 m-0">{l}</p>)}
         </div>
       )}
 
       {/* Pinned */}
       {config.showPinEnabled && pinnedMessage && (
-        <div className="absolute top-0 z-10 w-full bg-black/70 backdrop-blur-sm rounded-b p-2"
-             style={{ animation: 'chatSlideDown 150ms ease-out' }}>
-          <div className="flex items-center gap-1 pb-0.5 text-xs font-semibold opacity-60">
-            <PinSVG /> <span>Pinned Message</span>
+        <div className="absolute top-0 z-10 w-full bg-black/70 backdrop-blur-sm rounded-b px-2 pt-1 pb-2"
+             style={{ animation: 'chatPinSlide 150ms ease-out' }}>
+          <div className="flex items-center gap-1 pb-0.5 opacity-60" style={{ fontSize: '0.75em' }}>
+            <PinSVG /> <span className="font-semibold">Pinned Message</span>
           </div>
           {line(pinnedMessage)}
         </div>
@@ -154,7 +151,7 @@ export default function ChatOverlay({
       </div>
 
       <style>{`
-        @keyframes chatSlideDown {
+        @keyframes chatPinSlide {
           from { opacity: 0; transform: translateY(-6px); }
           to   { opacity: 1; transform: translateY(0); }
         }
@@ -163,16 +160,17 @@ export default function ChatOverlay({
   );
 }
 
-/* ─── Message line ──────────────────────────────────────── */
-
+/* ─── Single message line ───────────────────────────────── */
 function MessageLine({
   msg,
-  emoteH,
-  shadow,
+  badgeSize,
+  shadowVal,
+  strokeStyle,
 }: {
   msg: ParsedMessage;
-  emoteH: number;
-  shadow: string;
+  badgeSize: string;
+  shadowVal: string;
+  strokeStyle: React.CSSProperties;
 }) {
   const isPaint = !!msg.identity.background;
 
@@ -184,7 +182,7 @@ function MessageLine({
         WebkitBackgroundClip: 'text',
         backgroundClip: 'text',
         backgroundSize: 'cover',
-        // Stroke + shadow break name-paints — reset them
+        // Name-paints break with stroke/shadow — reset them
         WebkitTextStroke: '0px',
         textShadow: 'none',
       }
@@ -192,31 +190,58 @@ function MessageLine({
 
   return (
     /*
-      Inline layout (not flex) — exactly how ChatIS works.
-      Badges/emotes use vertical-align: middle so they sit
-      centred on the text line without pushing the baseline.
+      Pure inline layout — exactly what chatis does.
+      - Badges: inline-flex, height=1.1em, verticalAlign=middle
+        This makes badges the same visual size as the cap-height of the
+        current font, matching how chatis renders them.
+      - No flex-wrap on the outer span — text wraps naturally around badges.
     */
-    <p style={{ margin: 0, wordBreak: 'break-word' }}>
+    <p style={{ margin: 0, padding: 0, wordBreak: 'break-word', lineHeight: 'inherit' }}>
       {/* Badges */}
       {msg.identity.badges.length > 0 && (
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', marginRight: '4px', verticalAlign: 'middle' }}>
-          {msg.identity.badges.map((badge, i) => (
-            <Fragment key={i}>{badge}</Fragment>
-          ))}
+        <span style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '2px',
+          marginRight: '4px',
+          verticalAlign: 'middle',
+          // Force badge images inside to the right height
+        }}>
+          <style>{`
+            .chat-badge-wrap img {
+              height: ${badgeSize} !important;
+              width: auto !important;
+              vertical-align: middle;
+              display: inline-block;
+            }
+          `}</style>
+          <span className="chat-badge-wrap" style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+            {msg.identity.badges.map((badge, i) => (
+              <Fragment key={i}>{badge}</Fragment>
+            ))}
+          </span>
         </span>
       )}
 
       {/* Username */}
-      <span className="font-bold" style={usernameStyle}>
+      <span className="font-bold" style={{ ...usernameStyle, verticalAlign: 'baseline' }}>
         {msg.identity.username}
       </span>
 
       {/* Colon */}
-      <span>:&nbsp;</span>
+      <span style={{ verticalAlign: 'baseline' }}>:&nbsp;</span>
 
-      {/* Message */}
-      <span>
-        {msg.message.map((node, i) => <Fragment key={i}>{node}</Fragment>)}
+      {/* Message body — emotes also need vertical-align: middle */}
+      <span style={{ verticalAlign: 'baseline' }}>
+        <style>{`
+          .chat-msg-body img {
+            vertical-align: middle;
+            display: inline-block;
+          }
+        `}</style>
+        <span className="chat-msg-body">
+          {msg.message.map((node, i) => <Fragment key={i}>{node}</Fragment>)}
+        </span>
       </span>
     </p>
   );
