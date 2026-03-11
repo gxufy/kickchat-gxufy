@@ -168,40 +168,40 @@ export default function Page() {
       for (const badge of senderBadges) {
         switch (badge.type) {
           case 'broadcaster':
-            badgeNodes.push(<img key="broadcaster" className="inline max-h-4 h-auto w-auto" src="/badges/broadcaster.svg" alt="broadcaster" height={16} width={16} />);
+            badgeNodes.push(<img key="broadcaster" className="ck-badge-img" src="/badges/broadcaster.svg" alt="broadcaster" height={16} width={16} />);
             break;
           case 'moderator':
-            badgeNodes.push(<img key="mod" className="inline max-h-4 h-auto w-auto" src="/badges/moderator.svg" alt="moderator" height={16} width={16} />);
+            badgeNodes.push(<img key="mod" className="ck-badge-img" src="/badges/moderator.svg" alt="moderator" height={16} width={16} />);
             break;
           case 'vip':
-            badgeNodes.push(<img key="vip" className="inline max-h-4 h-auto w-auto" src="/badges/vip.svg" alt="vip" height={16} width={16} />);
+            badgeNodes.push(<img key="vip" className="ck-badge-img" src="/badges/vip.svg" alt="vip" height={16} width={16} />);
             break;
           case 'founder':
-            badgeNodes.push(<img key="founder" className="inline max-h-4 h-auto w-auto" src="/badges/founder.svg" alt="founder" height={16} width={16} />);
+            badgeNodes.push(<img key="founder" className="ck-badge-img" src="/badges/founder.svg" alt="founder" height={16} width={16} />);
             break;
           case 'og':
-            badgeNodes.push(<img key="og" className="inline max-h-4 h-auto w-auto" src="/badges/og.svg" alt="og" height={16} width={16} />);
+            badgeNodes.push(<img key="og" className="ck-badge-img" src="/badges/og.svg" alt="og" height={16} width={16} />);
             break;
           case 'verified':
-            badgeNodes.push(<img key="verified" className="inline max-h-4 h-auto w-auto" src="/badges/verified.svg" alt="verified" height={16} width={16} />);
+            badgeNodes.push(<img key="verified" className="ck-badge-img" src="/badges/verified.svg" alt="verified" height={16} width={16} />);
             break;
           case 'staff':
-            badgeNodes.push(<img key="staff" className="inline max-h-4 h-auto w-auto" src="/badges/staff.svg" alt="staff" height={16} width={16} />);
+            badgeNodes.push(<img key="staff" className="ck-badge-img" src="/badges/staff.svg" alt="staff" height={16} width={16} />);
             break;
           case 'subscriber': {
             const sorted = [...subscriberBadges].sort((a, b) => b.months - a.months);
             const match = sorted.find(sb => badge.count >= sb.months);
             if (match) {
-              badgeNodes.push(<img key="sub" className="inline max-h-4 h-auto w-auto" src={match.badge_image.src} alt="subscriber" height={16} width={16} />);
+              badgeNodes.push(<img key="sub" className="ck-badge-img" src={match.badge_image.src} alt="subscriber" />);
             } else {
-              badgeNodes.push(<img key="sub-default" className="inline max-h-4 h-auto w-auto" src="/badges/subscriber.svg" alt="subscriber" height={16} width={16} />);
+              badgeNodes.push(<img key="sub-default" className="ck-badge-img" src="/badges/subscriber.svg" alt="subscriber" height={16} width={16} />);
             }
             break;
           }
           case 'sub_gifter': {
             const count = badge.count ?? 0;
             const gifterBadge = count >= 200 ? 'subGifter200' : count >= 100 ? 'subGifter100' : count >= 50 ? 'subGifter50' : count >= 25 ? 'subGifter25' : 'subGifter';
-            badgeNodes.push(<img key="gifter" className="inline max-h-4 h-auto w-auto" src={`/badges/${gifterBadge}.svg`} alt="gifter" height={16} width={16} />);
+            badgeNodes.push(<img key="gifter" className="ck-badge-img" src={`/badges/${gifterBadge}.svg`} alt="gifter" height={16} width={16} />);
             break;
           }
         }
@@ -245,7 +245,7 @@ export default function Page() {
         if (entitlement && s.config?.sevenTVCosmeticsEnabled) {
           if (entitlement.badge) {
             const badge = s.badges.find(b => b.id === entitlement.badge);
-            if (badge) badgeNodes.push(<img key="7tv-badge" className="inline max-h-4 h-auto w-auto" src={badge.image} alt="7tv badge" height={16} width={16} />);
+            if (badge) badgeNodes.push(<img key="7tv-badge" className="ck-badge-img" src={badge.image} alt="7tv badge" />);
           }
           if (entitlement.paint) {
             const paint = s.paints.find(p => p.id === entitlement.paint);
