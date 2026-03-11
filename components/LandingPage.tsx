@@ -53,6 +53,7 @@ export default function LandingPage() {
   const [smallCaps,   setSmallCaps]   = useState(false);
   const [nlAfterName, setNlAfterName] = useState(false);
   const [hideNames,   setHideNames]   = useState(false);
+  const [botNames,    setBotNames]    = useState('');
   const [copied,      setCopied]      = useState(false);
   const [baseUrl,     setBaseUrl]     = useState('https://kick-chat-overlay3.vercel.app');
 
@@ -71,6 +72,7 @@ export default function LandingPage() {
     smallCaps:   String(smallCaps),
     nlAfterName: String(nlAfterName),
     hideNames:   String(hideNames),
+    ...(botNames.trim() ? { botNames: botNames.trim() } : {}),
   });
   const overlayUrl = `${baseUrl}/?${params.toString()}`;
 
@@ -109,8 +111,8 @@ export default function LandingPage() {
         *, *::before, *::after { box-sizing: border-box; }
         html, body {
           margin: 0; padding: 0;
-          background: #111a11;
-          color: #dff0df;
+          background: #1e1e1e;
+          color: #d8d8d8;
           font-family: 'Open Sans', system-ui, sans-serif;
           font-size: 16px;
         }
@@ -120,34 +122,34 @@ export default function LandingPage() {
         /* ── Page wrapper ── */
         .page { max-width: 820px; margin: 0 auto; padding: 0 20px 60px; }
 
-        /* ── Header — matches chatis header style ── */
+        /* ── Header ── */
         header {
           display: flex; align-items: center; gap: 16px;
           padding: 20px 0 16px;
-          border-bottom: 1px solid #2a4a2a;
+          border-bottom: 2px solid #53fc18;
           margin-bottom: 20px;
         }
         header h1 { margin: 0; font-size: 1.8rem; font-weight: 800; color: #fff; letter-spacing: -.02em; }
-        header h2 { margin: 0; font-size: 1rem; font-weight: 400; color: #5a8a5a; }
+        header h2 { margin: 0; font-size: 1rem; font-weight: 400; color: #53fc18; }
 
         /* ── Intro text ── */
-        .intro { font-size: 1rem; line-height: 1.7; color: #8aaa8a; margin-bottom: 20px; }
-        .intro em { color: #7aff4a; font-style: normal; font-weight: 700; }
+        .intro { font-size: 1rem; line-height: 1.7; color: #a0a0a0; margin-bottom: 20px; }
+        .intro em { color: #53fc18; font-style: normal; font-weight: 700; }
         .intro a { color: #53fc18; }
 
         /* ── Feature list ── */
-        #feature-list { color: #7a9a7a; font-size: 0.9rem; line-height: 1.9; padding-left: 1.2rem; margin-bottom: 24px; }
+        #feature-list { color: #909090; font-size: 0.9rem; line-height: 1.9; padding-left: 1.2rem; margin-bottom: 24px; }
         #feature-list li::marker { color: #53fc18; }
 
         /* ── Form ── */
-        form[name="generator"] { background: #152015; border: 1px solid #2a4a2a; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        form[name="generator"] { background: #2a2a2a; border: 1px solid #53fc18; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
 
         .form_row.center { display: flex; justify-content: center; margin-bottom: 14px; }
         .form_row.center input[type=text] { width: 100%; max-width: 400px; text-align: center; font-size: 1.1rem; padding: 8px 14px; }
 
         .form_table { display: flex; gap: 0; margin-bottom: 14px; }
         .form_col { flex: 1; }
-        .form_col:first-child { border-right: 1px solid #2a4a2a; padding-right: 20px; }
+        .form_col:first-child { border-right: 1px solid #3a4a3a; padding-right: 20px; }
         .form_col:last-child  { padding-left: 20px; }
 
         .form_row { display: flex; align-items: center; margin-bottom: 10px; gap: 8px; }
@@ -157,26 +159,26 @@ export default function LandingPage() {
 
         /* Inputs & selects */
         input[type=text], input[type=number], select {
-          background: #1a2e1a; border: 1px solid #2a4a2a;
-          border-radius: 4px; color: #dff0df;
+          background: #333; border: 1px solid #3a4a3a;
+          border-radius: 4px; color: #d8d8d8;
           padding: 4px 10px; font-size: 0.88rem;
           font-family: inherit; outline: none;
           transition: border-color .15s;
         }
         input[type=text]:focus, input[type=number]:focus, select:focus { border-color: #53fc18; }
-        select option { background: #1a2e1a; }
+        select option { background: #2a2a2a; }
         input[type=text]:disabled { opacity: 0.35; cursor: not-allowed; }
 
         input[type=text].short { width: 52px; }
 
-        /* Checkboxes — larger, styled */
+        /* Checkboxes */
         input[type=checkbox] {
           width: 16px; height: 16px; cursor: pointer;
           accent-color: #53fc18;
         }
 
         /* Form labels */
-        label { font-size: 0.88rem; color: #7a9a7a; cursor: pointer; user-select: none; }
+        label { font-size: 0.88rem; color: #a0a0a0; cursor: pointer; user-select: none; }
         label abbr { text-decoration: underline dotted; cursor: help; }
 
         /* ── Submit / preview area ── */
@@ -185,32 +187,26 @@ export default function LandingPage() {
           margin-top: 14px;
         }
 
-        /* ── Preview box — replicates chatis #example ── */
+        /* ── Preview box — chatis #example style ── */
         #example {
           flex: 1; min-width: 280px;
-          background: repeating-conic-gradient(#162216 0% 25%, #111a11 0% 50%) 0 0 / 18px 18px;
-          border: 1px solid #2a4a2a; border-radius: 6px;
+          background: repeating-conic-gradient(#222 0% 25%, #1a1a1a 0% 50%) 0 0 / 18px 18px;
+          border: 1px solid #53fc18; border-radius: 6px;
           overflow: hidden; position: relative;
-          /* Height is driven by content — no fixed min-height.
-             The inner div is static so the box grows with font size. */
         }
         .example-inner {
-          /* Static flow (not absolute) so box height follows content */
           width: calc(100% - 20px);
           padding: 10px;
           word-break: break-word;
           font-weight: 800;
           color: white;
         }
-        .chat_line { /* .chat_line from chatis — uses dynamic line-height */ }
+        .chat_line { }
         .user_info { display: inline-block; }
-        .nick { /* colored inline */ }
-        .colon { /* margin-right set dynamically */ }
-        .message { /* inline */ }
 
         /* Generate button */
         input[type=submit] {
-          background: #53fc18; color: #fff; border: none;
+          background: #53fc18; color: #000; border: none;
           border-radius: 6px; font-size: 1rem; font-weight: 700;
           padding: 10px 28px; cursor: pointer; font-family: inherit;
           transition: background .15s; align-self: flex-end;
@@ -221,39 +217,41 @@ export default function LandingPage() {
         #result { margin-bottom: 20px; }
         .url-box { display: flex; gap: 8px; align-items: stretch; }
         .url-code {
-          flex: 1; background: #0d180d; border: 1px solid #2a4a2a;
+          flex: 1; background: #111; border: 1px solid #53fc18;
           border-radius: 5px; padding: 9px 12px;
           font-family: 'Roboto Mono', monospace; font-size: 0.72rem;
           color: #53fc18; word-break: break-all; line-height: 1.7;
         }
         .url-copy {
-          flex-shrink: 0; background: #53fc18; color: #fff; border: none;
+          flex-shrink: 0; background: #53fc18; color: #000; border: none;
           border-radius: 5px; font-weight: 800; font-size: 0.85rem;
           padding: 0 20px; cursor: pointer; transition: background .15s; font-family: inherit;
         }
-        .url-copy.ok { background: #53fc18; color: #000; }
-        #result p { color: #5a5a7a; font-size: 0.82rem; margin: 6px 0 0; }
+        .url-copy.ok { background: #7aff4a; color: #000; }
+        #result p { color: #888; font-size: 0.82rem; margin: 6px 0 0; }
 
         /* ── Setup instructions ── */
         .setup-section { margin-top: 20px; }
         .setup-section h2 { font-size: 1rem; color: #53fc18; font-weight: 700; margin: 0 0 10px; text-transform: uppercase; letter-spacing: .07em; }
         .steps { list-style: none; padding: 0; margin: 0; counter-reset: s; }
-        .steps li { counter-increment: s; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 9px; font-size: 0.88rem; color: #7a9a7a; line-height: 1.5; }
-        .steps li::before { content: counter(s); background: #1a2e1a; border: 1px solid #2a4a2a; border-radius: 50%; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; color: #6a8a6a; flex-shrink: 0; margin-top: 1px; }
-        .steps li strong { color: #b0d0b0; }
+        .steps li { counter-increment: s; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 9px; font-size: 0.88rem; color: #909090; line-height: 1.5; }
+        .steps li::before { content: counter(s); background: #2a2a2a; border: 1px solid #53fc18; border-radius: 50%; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; color: #53fc18; flex-shrink: 0; margin-top: 1px; }
+        .steps li strong { color: #d8d8d8; }
+
+        /* ── Commands reference ── */
+        .commands-section { margin-top: 24px; }
+        .commands-section h2 { font-size: 1rem; color: #53fc18; font-weight: 700; margin: 0 0 10px; text-transform: uppercase; letter-spacing: .07em; }
+        .cmd-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        .cmd-table th { text-align: left; color: #53fc18; font-weight: 600; padding: 4px 10px 6px; border-bottom: 1px solid #3a4a3a; }
+        .cmd-table td { padding: 5px 10px; color: #a0a0a0; border-bottom: 1px solid #2a2a2a; vertical-align: top; }
+        .cmd-table td:first-child { color: #53fc18; font-family: 'Roboto Mono', monospace; white-space: nowrap; }
+        .cmd-table tr:last-child td { border-bottom: none; }
+        .cmd-access { font-size: 0.74rem; color: #888; }
 
         /* ── Footer ── */
-        footer { border-top: 1px solid #2a4a2a; padding: 20px 0; text-align: center; font-size: 0.82rem; color: #7aaa7a; margin-top: 40px; }
+        footer { border-top: 1px solid #3a4a3a; padding: 20px 0; text-align: center; font-size: 0.82rem; color: #888; margin-top: 40px; }
         footer p { margin: 4px 0; }
         footer a { color: #53fc18; }
-
-        /* ── Bot names row (full width) ── */
-        #botNamesContainer {
-          border-top: 1px solid #2a4a2a; margin-top: 10px; padding-top: 12px;
-          justify-content: flex-start; gap: 10px;
-        }
-        #botNamesContainer input { flex: 1; }
-        #botNamesContainer label { white-space: nowrap; color: #7a9a7a; font-size: 0.88rem; }
       `}</style>
 
       <div className="page">
@@ -273,7 +271,7 @@ export default function LandingPage() {
           You can choose a font, enable smooth animations for new messages, or fade old ones after some time.
         </p>
 
-        <p style={{ marginBottom:'0.2rem', fontSize:'1rem', color:'#9090b8' }}>Feature list:</p>
+        <p style={{ marginBottom:'0.2rem', fontSize:'1rem', color:'#888' }}>Feature list:</p>
         <ul id="feature-list">
           <li>7TV global + channel emotes with live updates</li>
           <li>7TV cosmetics — name-paints and badges</li>
@@ -384,7 +382,7 @@ export default function LandingPage() {
                 <input type="text" name="fade" value={fade} placeholder="30"
                   className="short" style={{ display: fadeBool ? 'inline-block' : 'none' }}
                   onChange={e => setFade(e.target.value)} />
-                <span style={{ fontSize:'0.8rem', color:'#6060a0', display: fadeBool ? 'inline' : 'none' }}>sec</span>
+                <span style={{ fontSize:'0.8rem', color:'#888', display: fadeBool ? 'inline' : 'none' }}>sec</span>
                 <input type="checkbox" name="fade_bool" checked={fadeBool}
                   onChange={e => setFadeBool(e.target.checked)} />
               </div>
@@ -407,7 +405,16 @@ export default function LandingPage() {
                   onChange={e => setHideNames(e.target.checked)} />
               </div>
 
+              <div className="form_row right" style={{ borderTop:'1px solid #3a4a3a', marginTop:6, paddingTop:8 }}>
+                <label htmlFor="bot_names" style={{ fontSize:'0.78rem' }}>Bot names (comma-separated)</label>
+              </div>
               <div className="form_row right">
+                <input type="text" name="bot_names" placeholder="nightbot, streamelements…"
+                  style={{ width:'100%', fontSize:'0.78rem' }}
+                  value={botNames} onChange={e => setBotNames(e.target.value)} />
+              </div>
+
+              <div className="form_row right" style={{ borderTop:'1px solid #3a4a3a', marginTop:6, paddingTop:8 }}>
                 <label htmlFor="show_pin">Pinned messages</label>
                 <input type="checkbox" name="show_pin" checked={showPin}
                   onChange={e => setShowPin(e.target.checked)} />
@@ -427,7 +434,7 @@ export default function LandingPage() {
                       <input type="radio" name="textBgWidth" value={v}
                         checked={textBgWidth === v} onChange={() => setTextBgWidth(v)}
                         style={{ accentColor:'#53fc18' }} />
-                      <span style={{ fontSize:'0.78rem', color: textBgWidth===v ? '#7aff4a' : '#6060a0' }}>
+                      <span style={{ fontSize:'0.78rem', color: textBgWidth===v ? '#53fc18' : '#888' }}>
                         {v === 'min' ? 'Fit' : 'Full'}
                       </span>
                     </label>
@@ -517,13 +524,35 @@ export default function LandingPage() {
           <ol className="steps">
             <li>Fill in your channel name and configure options, then click <strong>Generate</strong> / Copy</li>
             <li>In OBS: <strong>Add Source → Browser Source</strong></li>
-            <li>Paste the URL — recommended: <strong>830 × 230</strong> (matches chatis default)</li>
+            <li>Paste the URL — recommended: <strong>830 × 230</strong></li>
           </ol>
+        </div>
+
+        {/* ── Commands reference ── */}
+        <div className="commands-section">
+          <h2>Chat Commands</h2>
+          <p style={{ fontSize:'0.82rem', color:'#888', marginBottom:10 }}>
+            Broadcaster and mods can trigger these in Kick chat. Replace <code style={{color:'#53fc18'}}>!kickchat</code> with the command below.
+            Mods have access to most commands; broadcaster gets all.
+          </p>
+          <table className="cmd-table">
+            <thead><tr><th>Command</th><th>Description</th><th>Access</th></tr></thead>
+            <tbody>
+              <tr><td>!kickchat ping</td><td>Shows a "Pong!" overlay on screen</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!kickchat reload</td><td>Reloads the browser source</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!kickchat stop</td><td>Stops all active overlays (img, yt)</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!kickchat show / hide</td><td>Shows or hides the chat overlay</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!kickchat refresh emotes</td><td>Reloads 7TV emotes without refreshing the page</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!kickchat img [url] -t [sec] -o [opacity]</td><td>Displays an image overlay for N seconds</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!kickchat yt [url or preset] -t [sec]</td><td>Plays a YouTube video/sound. Presets: bruh, vine-boom, rickroll, dc-ping, win-error</td><td className="cmd-access">Broadcaster</td></tr>
+              <tr><td>!kickchat tts [message] -v [vol]</td><td>Text-to-speech via StreamElements TTS</td><td className="cmd-access">Mod+</td></tr>
+            </tbody>
+          </table>
         </div>
 
       </div>
 
-      {/* ── Footer — matches chatis footer ── */}
+      {/* ── Footer ── */}
       <footer>
         <p>kickchat-gxufy with 🕊️ — <a href="https://x.com/Gxufy_" target="_blank" rel="noreferrer">https://x.com/Gxufy_</a></p>
         <p>Inspired by <a href="https://chatis.is2511.com/" target="_blank" rel="noreferrer">ChatIS</a> by IS2511 &amp; giambaJ</p>
