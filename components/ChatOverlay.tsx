@@ -107,15 +107,23 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
   const emoteMaxH  = `${parseFloat(sz.emoteMaxH) * emoteScale}px`;
   const emoteMaxW  = `${parseFloat(sz.emoteMaxW) * emoteScale}px`;
 
-  /* 200ms batch queue */
+  /* 200ms batch queue — track by ID not by index.
+     Tracking by index breaks when the messages array shrinks
+     (fade expiry, bans) causing prevLenRef to overshoot and
+     new messages to be sliced off as empty. */
   const pendingRef  = useRef<ParsedMessage[]>([]);
   const seqRef      = useRef(0);
   const [batches, setBatches] = useState<{ id:number; msgs:ParsedMessage[] }[]>([]);
-  const prevLenRef  = useRef(0);
+  const seenIdsRef  = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    const newMsgs = messages.slice(prevLenRef.current);
-    prevLenRef.current = messages.length;
+    const newMsgs = messages.filter(m => !seenIdsRef.current.has(m.id));
+    newMsgs.forEach(m => seenIdsRef.current.add(m.id));
+    // Prune seenIds so it doesn't grow unboundedly
+    if (seenIdsRef.current.size > 500) {
+      const keep = messages.map(m => m.id);
+      seenIdsRef.current = new Set(keep);
+    }
     if (newMsgs.length) pendingRef.current.push(...newMsgs);
   }, [messages]);
 
@@ -161,7 +169,9 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
     <>
       <Head>
         <style>{`
-          /* Exact chatis body reset from style.css */
+          /* Exact chatis body reset from style.css
+             Also reset #__next (Next.js wrapper) so it doesn't
+             offset position:absolute children of body */
           html, body {
             margin: 0 !important;
             padding: 0 !important;
@@ -169,6 +179,14 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
             height: 100vh !important;
             position: relative !important;
             background: transparent !important;
+          }
+          /* Next.js inserts #__next between <body> and our content.
+             Make it invisible to layout so position:absolute;bottom:0
+             on #chat_container anchors to <body> exactly like chatis. */
+          #__next {
+            position: static !important;
+            height: 0 !important;
+            overflow: visible !important;
           }
           ${cfg.font==='alsina' ? `@font-face { font-family:Alsina; src:url(https://chatis.is2511.com/v2/styles/Alsina_Ultrajada.ttf); }` : ''}
 
