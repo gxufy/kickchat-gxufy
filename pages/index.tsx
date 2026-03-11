@@ -394,7 +394,6 @@ export default function Page() {
 
     init();
 
-    // Fade old messages if fade= is set
     let fadeInterval: ReturnType<typeof setInterval> | null = null;
     if (cfg.fade !== false) {
       const fadeMs = (cfg.fade as number) * 1000;
