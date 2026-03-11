@@ -283,7 +283,7 @@ export default function Page() {
       'fossabot','wizebot','botisimo','sery_bot','soundalerts',
     ]);
     const extraBots = new Set(
-      (cfg.botNames || '').split(',').flatMap((s: string) => s.trim().split(' ')).filter(Boolean).map((s: string) => s.toLowerCase())
+      (cfg.botNames || '').split(',').flatMap((b: string) => b.trim().split(' ')).filter(Boolean).map((b: string) => b.toLowerCase())
     );
     function isBot(username: string) {
       const u = username.toLowerCase();
@@ -409,7 +409,7 @@ export default function Page() {
       }
 
       // Float overlay system — mirrors chatis showFloat/removeFloat
-      const floats: Record<number, { el: HTMLElement; timer: ReturnType<typeof setTimeout> | null }> = {};
+      const floats: { [id: number]: { el: HTMLElement; timer: ReturnType<typeof setTimeout> | null } } = {};
       function showFloat(id: number, html: string, timeoutMs = 3000, opacity = 1) {
         removeFloat(id);
         const el = document.createElement('div');
@@ -476,16 +476,17 @@ kickchat-gxufy', 3000);
 
           case 'refresh':
             if (!args[2] || args[2] === 'emotes') {
-              // Re-fetch 7TV emotes
-              import('../lib/kick').then(async ({ getSevenTVChannelEmotes, getSevenTVGlobalEmotes }) => {
-                const globals = await getSevenTVGlobalEmotes();
-                s.emotes = [...globals];
-                const ch = s.channel;
-                if (ch) {
-                  const { emotes: ce } = await getSevenTVChannelEmotes(ch.user_id.toString());
-                  s.emotes.push(...ce);
-                }
-              }).catch(() => {});
+              (async () => {
+                try {
+                  const globals = await getSevenTVGlobalEmotes();
+                  s.emotes = [...globals];
+                  const ch = s.channel;
+                  if (ch) {
+                    const { emotes: ce } = await getSevenTVChannelEmotes(ch.user_id.toString());
+                    s.emotes.push(...ce);
+                  }
+                } catch (_) {}
+              })();
             }
             break;
 
@@ -494,8 +495,8 @@ kickchat-gxufy', 3000);
             const urlMatch = text.match(/https?:\/\/\S+/);
             const link = urlMatch ? urlMatch[0] : null;
             if (!link) break;
-            const timeout = parseFloat((text.match(/-t\s+([\d.]+)/) || [])[1]) * 1000 || 5000;
-            const opacity = parseFloat((text.match(/-o\s+([\d.]+)/) || [])[1]) || 1;
+            const timeout = (parseFloat((text.match(/-t\s+([\d.]+)/) || [])[1] ?? '') || 5) * 1000;
+            const opacity = parseFloat((text.match(/-o\s+([\d.]+)/) || [])[1] ?? '') || 1;
             const el = document.createElement('div');
             el.style.cssText = `position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9998;pointer-events:none;`;
             el.innerHTML = `<img src="${link}" style="max-width:90vw;max-height:80vh;opacity:${opacity};border-radius:8px;" />`;
@@ -516,7 +517,7 @@ kickchat-gxufy', 3000);
             const urlMatch = text.match(/(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/watch\?v=)([\w\-]+)/);
             const ytId = urlMatch ? urlMatch[1] : ytPresets[args[2]] ?? null;
             if (!ytId) break;
-            const timeout = parseFloat((text.match(/-t\s+([\d.]+)/) || [])[1]) * 1000 || 5000;
+            const timeout = (parseFloat((text.match(/-t\s+([\d.]+)/) || [])[1] ?? '') || 5) * 1000;
             const mute = text.includes('-m');
             const el = document.createElement('div');
             el.style.cssText = `position:fixed;bottom:0;right:0;z-index:9998;pointer-events:none;`;
@@ -529,7 +530,7 @@ kickchat-gxufy', 3000);
 
           case 'tts': {
             const volMatch = text.match(/-v\s+([\d.]+)/);
-            const volume = parseFloat((volMatch || [])[1]) || 0.5;
+            const volume = parseFloat((volMatch || [])[1] ?? '') || 0.5;
             let ttsText = text.replace(/^!kickchat\s+tts\s+/i, '').replace(/-v\s+[\d.]+/, '').trim();
             if (!ttsText) break;
             // StreamElements TTS (free, no key needed)
