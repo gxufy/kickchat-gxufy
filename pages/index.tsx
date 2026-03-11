@@ -276,7 +276,7 @@ export default function Page() {
 
     function addMessage(msg: ParsedMessage) {
       s.messages.push(msg);
-      if (s.messages.length > 50) s.messages.shift();
+      if (s.messages.length > 100) s.messages.shift();
       setMessages([...s.messages]);
     }
 
@@ -454,8 +454,12 @@ export default function Page() {
       const fadeMs = (cfg.fade as number) * 1000;
       fadeInterval = setInterval(() => {
         const cutoff = Date.now() - fadeMs;
-        s.messages = s.messages.filter(m => (m.timestamp ?? 0) > cutoff);
-        setMessages([...s.messages]);
+        const filtered = s.messages.filter(m => (m.timestamp ?? 0) > cutoff);
+        // Only trigger a re-render if something actually expired
+        if (filtered.length !== s.messages.length) {
+          s.messages = filtered;
+          setMessages([...s.messages]);
+        }
       }, 1000);
     }
 
