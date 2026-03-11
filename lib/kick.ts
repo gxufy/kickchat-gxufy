@@ -42,6 +42,7 @@ export interface Entitlements {
 
 export interface ParsedMessage {
   id: string;
+  timestamp?: number;
   identity: {
     username: string;
     color: string;
