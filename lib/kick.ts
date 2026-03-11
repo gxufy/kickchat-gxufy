@@ -17,6 +17,7 @@ export interface SevenTVEmote {
   height: number;
   width: number;
   zeroWidth: boolean;
+  upscale: boolean;  // render at full line-height (chatis 'upscale' flag)
 }
 
 export interface SevenTVPaint {
@@ -72,10 +73,11 @@ export async function getSevenTVGlobalEmotes(): Promise<SevenTVEmote[]> {
     const data = await res.json();
     return (data.emotes || []).map((e: any) => ({
       name: e.name,
-      image: `https://cdn.7tv.app/emote/${e.id}/1x.webp`,
-      height: e.data?.host?.files?.[1]?.height ?? 28,
-      width: e.data?.host?.files?.[1]?.width ?? 28,
-      zeroWidth: e.data?.flags === 256,
+      image: `https://cdn.7tv.app/emote/${e.id}/4x.webp`,
+      height: e.data?.host?.files?.[3]?.height ?? e.data?.host?.files?.[1]?.height ?? 28,
+      width: e.data?.host?.files?.[3]?.width ?? e.data?.host?.files?.[1]?.width ?? 28,
+      zeroWidth: (e.data?.flags & 256) === 256,
+      upscale: (e.data?.flags & 128) === 128,
     }));
   } catch {
     return [];
@@ -93,10 +95,11 @@ export async function getSevenTVChannelEmotes(userId: string): Promise<{ emotes:
       setId: emoteSet.id,
       emotes: (emoteSet.emotes || []).map((e: any) => ({
         name: e.name,
-        image: `https://cdn.7tv.app/emote/${e.id}/1x.webp`,
-        height: e.data?.host?.files?.[1]?.height ?? 28,
-        width: e.data?.host?.files?.[1]?.width ?? 28,
-        zeroWidth: e.data?.flags === 256,
+        image: `https://cdn.7tv.app/emote/${e.id}/4x.webp`,
+        height: e.data?.host?.files?.[3]?.height ?? e.data?.host?.files?.[1]?.height ?? 28,
+        width: e.data?.host?.files?.[3]?.width ?? e.data?.host?.files?.[1]?.width ?? 28,
+        zeroWidth: (e.data?.flags & 256) === 256,
+        upscale: (e.data?.flags & 128) === 128,
       })),
     };
   } catch {
