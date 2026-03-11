@@ -80,12 +80,16 @@ export default function LandingPage() {
   // Current font CSS for preview
   const currentFontCSS = FONTS.find(([v]) => v === font)?.[2] ?? 'inherit';
 
+  // Exact px values from chatis size_*.css
   const previewFontSize =
-    textSize === 'small' ? '0.875rem' : textSize === 'large' ? '1.3rem' : '1.05rem';
-  const previewShadow =
-    textShadow === 'small'  ? '1px 1px 2px #000,-1px -1px 2px #000' :
-    textShadow === 'medium' ? '1px 1px 3px #000,-1px -1px 3px #000,0 0 5px #000' :
-    textShadow === 'large'  ? '1px 1px 5px #000,-1px -1px 5px #000,0 0 10px #000' : 'none';
+    textSize === 'small' ? '20px' : textSize === 'large' ? '48px' : '34px';
+  const previewLineHeight =
+    textSize === 'small' ? '30px' : textSize === 'large' ? '75px' : '55px';
+  // Exact drop-shadow from chatis shadow_*.css
+  const previewFilter =
+    textShadow === 'small'  ? 'drop-shadow(2px 2px 0.2rem black)' :
+    textShadow === 'medium' ? 'drop-shadow(2px 2px 0.35rem black)' :
+    textShadow === 'large'  ? 'drop-shadow(2px 2px 0.5rem black)' : '';
   const previewStroke: React.CSSProperties =
     stroke === 'thin'    ? { WebkitTextStroke: '1px black' } :
     stroke === 'medium'  ? { WebkitTextStroke: '2px black' } :
@@ -100,7 +104,7 @@ export default function LandingPage() {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         {/* All Google Fonts used by chatis */}
-        <link href="https://fonts.googleapis.com/css2?family=Baloo+Tammudu+2:wght@400;700&family=Comfortaa:wght@300;400;700&family=Dancing+Script:wght@400;700&family=Indie+Flower&family=Lato:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;700&family=Open+Sans:wght@400;700&family=Roboto:wght@400;700&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Baloo+Tammudu+2:wght@400;700;800&family=Comfortaa:wght@300;400;700&family=Dancing+Script:wght@400;700&family=Indie+Flower&family=Lato:ital,wght@0,400;0,700;0,800;1,400&family=Noto+Sans+JP:wght@400;700;900&family=Open+Sans:wght@400;700;800&family=Roboto:wght@400;700;900&family=Source+Code+Pro:wght@400;700;900&display=swap" rel="stylesheet" />
         {/* Alsina — custom font from chatis CDN */}
         <style>{`
           @font-face {
@@ -279,10 +283,11 @@ export default function LandingPage() {
             <div style={{
               position: 'absolute', bottom: 0, left: 0, width: '100%', padding: '4px 0',
               fontSize: previewFontSize,
+              lineHeight: previewLineHeight,
               fontFamily: currentFontCSS,
+              fontWeight: 800,
               color: '#fff',
-              lineHeight: 1.5,
-              textShadow: previewShadow !== 'none' ? previewShadow : undefined,
+              ...(previewFilter ? { filter: previewFilter } : {}),
               ...previewStroke,
             }}>
               {PREVIEW.map((m, i) => (

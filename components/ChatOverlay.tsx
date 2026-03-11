@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState, useCallback } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import type { OverlayConfig } from '../pages/index';
 import type { ParsedMessage } from '../lib/kick';
 
@@ -27,53 +27,88 @@ const FONT_FAMILIES: Record<string, string> = {
   alsina:      "'Alsina', cursive",
 };
 
-/* ─── Style helpers ─────────────────────────────────────── */
-function getFontSize(size: string) {
-  if (size === 'small')  return '0.875rem';
-  if (size === 'large')  return '1.3rem';
-  return '1.05rem';
-}
+/* ─── Exact values from chatis size_*.css files ─────────── */
+const SIZE_STYLES: Record<string, {
+  fontSize: string;
+  lineHeight: string;
+  badgeSize: string;
+  badgeMarginRight: string;
+  badgeMarginBottom: string;
+  badgeLastMarginRight: string;
+  colonMarginRight: string;
+  emoteMaxWidth: string;
+  emoteMaxHeight: string;
+  emoteMarginRight: string;
+  emojiHeight: string;
+}> = {
+  small: {
+    fontSize:            '20px',
+    lineHeight:          '30px',
+    badgeSize:           '16px',
+    badgeMarginRight:    '2px',
+    badgeMarginBottom:   '3px',
+    badgeLastMarginRight:'3px',
+    colonMarginRight:    '8px',
+    emoteMaxWidth:       '75px',
+    emoteMaxHeight:      '25px',
+    emoteMarginRight:    '-3px',
+    emojiHeight:         '22px',
+  },
+  medium: {
+    fontSize:            '34px',
+    lineHeight:          '55px',
+    badgeSize:           '28px',
+    badgeMarginRight:    '4px',
+    badgeMarginBottom:   '6px',
+    badgeLastMarginRight:'6px',
+    colonMarginRight:    '14px',
+    emoteMaxWidth:       '128px',
+    emoteMaxHeight:      '42px',
+    emoteMarginRight:    '-6px',
+    emojiHeight:         '39px',
+  },
+  large: {
+    fontSize:            '48px',
+    lineHeight:          '75px',
+    badgeSize:           '40px',
+    badgeMarginRight:    '5px',
+    badgeMarginBottom:   '8px',
+    badgeLastMarginRight:'8px',
+    colonMarginRight:    '20px',
+    emoteMaxWidth:       '180px',
+    emoteMaxHeight:      '60px',
+    emoteMarginRight:    '-8px',
+    emojiHeight:         '55px',
+  },
+};
 
-function getShadow(shadow: string) {
-  if (shadow === 'small')  return '1px 1px 2px #000, -1px -1px 2px #000';
-  if (shadow === 'medium') return '1px 1px 3px #000, -1px -1px 3px #000, 0 0 5px #000';
-  if (shadow === 'large')  return '1px 1px 5px #000, -1px -1px 5px #000, 0 0 10px #000, 0 0 15px rgba(0,0,0,0.6)';
+/* ─── Exact shadow from chatis shadow_*.css (drop-shadow) ── */
+function getShadowFilter(shadow: string): string {
+  if (shadow === 'small')  return 'drop-shadow(2px 2px 0.2rem black)';
+  if (shadow === 'medium') return 'drop-shadow(2px 2px 0.35rem black)';
+  if (shadow === 'large')  return 'drop-shadow(2px 2px 0.5rem black)';
   return '';
 }
 
-function getStroke(stroke: string): React.CSSProperties {
-  const map: Record<string, string> = { thin: '1px', medium: '2px', thick: '3px', thicker: '4px' };
-  return map[stroke] ? { WebkitTextStroke: `${map[stroke]} black`, paintOrder: 'stroke fill' as any } : {};
+/* ─── Exact stroke from chatis stroke_*.css ─────────────── */
+function getStrokeCss(stroke: string): string {
+  const map: Record<string, string> = {
+    thin: '1px black', medium: '2px black', thick: '3px black', thicker: '4px black',
+  };
+  return map[stroke] ?? '';
 }
 
-/* ─── Displayed message with a "batch generation" stamp ─── */
-interface DisplayedMessage {
-  msg: ParsedMessage;
-  batchId: number; // all messages in the same flush share one batchId
-}
-
-/* ─── Batch-animated group ──────────────────────────────────
-   ChatIS behaviour:
-   - Incoming messages are pushed into a pending queue
-   - Every 200ms, the entire queue is flushed as ONE group
-   - That group gets a single height-expand animation (0 → full height)
-   - During fast chat, many messages animate together as one block,
-     so the overlay never gets a backlog of individual animations
-─────────────────────────────────────────────────────────── */
-function BatchGroup({
-  children,
-  animate,
-  wrapCls,
-}: {
-  children: React.ReactNode;
-  animate: boolean;
-  wrapCls: string;
-}) {
-  const [height, setHeight] = useState<number | 'auto'>(animate ? 0 : 'auto');
+/* ─── Batch slide animation (chatis 200ms queue flush) ─────
+   All messages that arrive within a 200ms window are grouped
+   into one batch and animated together as a single block.
+   This prevents a backlog of individual animations during
+   fast chat, matching chatis's setInterval(fn, 200) behaviour.
+──────────────────────────────────────────────────────────── */
+function SlideGroup({ children }: { children: React.ReactNode }) {
+  const [height, setHeight] = useState<number | 'auto'>(0);
   const innerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!animate) return;
     if (!innerRef.current) return;
     const h = innerRef.current.getBoundingClientRect().height;
     requestAnimationFrame(() =>
@@ -82,11 +117,7 @@ function BatchGroup({
         setTimeout(() => setHeight('auto'), 155);
       })
     );
-  }, [animate]);
-
-  if (!animate) {
-    return <div className={wrapCls}>{children}</div>;
-  }
+  }, []);
 
   return (
     <div style={{
@@ -94,26 +125,18 @@ function BatchGroup({
       overflow: 'hidden',
       transition: height === 'auto' ? 'none' : 'height 150ms ease-out',
     }}>
-      <div ref={innerRef} className={wrapCls}>{children}</div>
+      <div ref={innerRef}>{children}</div>
     </div>
   );
 }
 
-function FadeBatch({
-  children,
-  wrapCls,
-}: {
-  children: React.ReactNode;
-  wrapCls: string;
-}) {
+function FadeGroup({ children }: { children: React.ReactNode }) {
   const [opacity, setOpacity] = useState(0);
   useEffect(() => {
     requestAnimationFrame(() => requestAnimationFrame(() => setOpacity(1)));
   }, []);
   return (
-    <div style={{ opacity, transition: 'opacity 220ms ease-in-out' }} className={wrapCls}>
-      {children}
-    </div>
+    <div style={{ opacity, transition: 'opacity 220ms ease-in-out' }}>{children}</div>
   );
 }
 
@@ -124,53 +147,38 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
     smallCaps?: boolean; nlAfterName?: boolean; hideNames?: boolean;
   };
 
-  const fontSize    = getFontSize(cfg.textSize);
-  const shadowVal   = getShadow(cfg.textShadow);
-  const strokeStyle = getStroke(cfg.stroke ?? 'none');
-  const fontFamily  = FONT_FAMILIES[cfg.font ?? 'default'] ?? 'inherit';
+  const size     = SIZE_STYLES[cfg.textSize] ?? SIZE_STYLES.medium;
+  const filter   = getShadowFilter(cfg.textShadow);
+  const strokeCss = getStrokeCss(cfg.stroke ?? 'none');
+  const fontFamily = FONT_FAMILIES[cfg.font ?? 'default'] ?? 'inherit';
 
-  const containerStyle: React.CSSProperties = {
-    fontSize,
-    fontFamily,
-    lineHeight: 1.5,
-    color: '#fff',
-    ...strokeStyle,
-    ...(shadowVal ? { textShadow: shadowVal } : {}),
-  };
+  // Emote scale multiplier
+  const emoteScale  = cfg.emoteScale ?? 1;
+  const emoteMaxH   = `${parseFloat(size.emoteMaxHeight) * emoteScale}px`;
+  const emoteMaxW   = `${parseFloat(size.emoteMaxWidth) * emoteScale}px`;
 
-  /* ── Batching logic ──────────────────────────────────────
-     We maintain a pendingRef queue. Every 200ms (matching chatis)
-     we flush everything in the queue into displayedBatches as one
-     new batch. Each batch animates once as a unit.
-  ──────────────────────────────────────────────────────── */
+  /* ── Batch queue (matches chatis setInterval 200ms) ── */
   const pendingRef  = useRef<ParsedMessage[]>([]);
   const batchSeqRef = useRef(0);
-
-  // displayedBatches: array of { batchId, messages[] }
-  const [displayedBatches, setDisplayedBatches] = useState<
-    { batchId: number; msgs: ParsedMessage[] }[]
-  >([]);
-
-  // Track the last seen message list length to detect new arrivals
+  const [batches, setBatches] = useState<{ id: number; msgs: ParsedMessage[] }[]>([]);
   const prevLenRef = useRef(0);
 
+  // Detect new messages arriving
   useEffect(() => {
     const newMsgs = messages.slice(prevLenRef.current);
     prevLenRef.current = messages.length;
-    if (newMsgs.length > 0) {
-      pendingRef.current.push(...newMsgs);
-    }
+    if (newMsgs.length > 0) pendingRef.current.push(...newMsgs);
   }, [messages]);
 
-  // 200ms flush interval — exactly like chatis setInterval(fn, 200)
+  // 200ms flush — exact chatis interval
   useEffect(() => {
-    const interval = setInterval(() => {
+    const iv = setInterval(() => {
       if (pendingRef.current.length === 0) return;
       const batch = pendingRef.current.splice(0);
-      const batchId = ++batchSeqRef.current;
-      setDisplayedBatches(prev => {
-        const next = [...prev, { batchId, msgs: batch }];
-        // Keep at most 100 total messages across all batches
+      const id = ++batchSeqRef.current;
+      setBatches(prev => {
+        const next = [...prev, { id, msgs: batch }];
+        // Keep max 100 messages total (chatis: 100 lines max)
         let total = next.reduce((s, b) => s + b.msgs.length, 0);
         while (total > 100 && next.length > 0) {
           total -= next[0].msgs.length;
@@ -179,13 +187,13 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
         return next;
       });
     }, 200);
-    return () => clearInterval(interval);
+    return () => clearInterval(iv);
   }, []);
 
-  // When messages are externally cleared (delete/ban), sync displayed batches
+  // Sync deletions/bans
   useEffect(() => {
     const ids = new Set(messages.map(m => m.id));
-    setDisplayedBatches(prev => {
+    setBatches(prev => {
       const next = prev
         .map(b => ({ ...b, msgs: b.msgs.filter(m => ids.has(m.id)) }))
         .filter(b => b.msgs.length > 0);
@@ -193,18 +201,23 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
     });
   }, [messages]);
 
-  const msgWrapCls = (full: boolean) => {
-    const bg = cfg.textBackgroundEnabled ? 'bg-black/50 rounded-sm px-1' : '';
-    const w  = cfg.textBackgroundEnabled && cfg.textBackgroundWidth === 'max' ? 'w-full' : 'w-fit';
-    return `${bg} ${w}`.trim();
-  };
+  const wrapStyle = (full: boolean): React.CSSProperties => ({
+    ...(cfg.textBackgroundEnabled ? {
+      background: 'rgba(0,0,0,0.5)',
+      borderRadius: 2,
+      padding: '0 4px',
+      display: full ? 'block' : 'table', // table = fit-content cross-browser
+    } : {}),
+  });
 
-  const renderLine = (msg: ParsedMessage) => (
-    <div key={msg.id} className={`mx-1 my-px ${msgWrapCls(cfg.textBackgroundWidth === 'max')}`}>
+  const renderMsg = (msg: ParsedMessage) => (
+    <div key={msg.id} style={{ margin: '0 10px', ...wrapStyle(cfg.textBackgroundWidth === 'max') }}>
       <MessageLine
         msg={msg}
-        shadowVal={shadowVal}
-        strokeStyle={strokeStyle}
+        size={size}
+        emoteMaxH={emoteMaxH}
+        emoteMaxW={emoteMaxW}
+        strokeCss={strokeCss}
         smallCaps={cfg.smallCaps ?? false}
         nlAfterName={cfg.nlAfterName ?? false}
         hideNames={cfg.hideNames ?? false}
@@ -212,10 +225,28 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
     </div>
   );
 
+  /* ── Container style — mirrors chatis style.css + size CSS ── */
+  const containerStyle: React.CSSProperties = {
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    width: 'calc(100% - 20px)',
+    padding: '10px',
+    overflow: 'hidden',
+    color: 'white',
+    fontWeight: 800,           // chatis: font-weight: 800 on entire container
+    wordBreak: 'break-word',
+    fontFamily,
+    fontSize: size.fontSize,
+    ...(cfg.smallCaps ? { fontVariant: 'small-caps' } : {}),
+    ...(filter ? { filter } : {}),
+    ...(strokeCss ? { WebkitTextStroke: strokeCss } : {}),
+  };
+
   return (
-    <div className="fixed inset-0 overflow-hidden" style={containerStyle}>
-      {/* Alsina font loaded inline if selected */}
-      {(cfg.font === 'alsina') && (
+    <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
+      {/* Alsina custom font */}
+      {cfg.font === 'alsina' && (
         <style>{`
           @font-face {
             font-family: Alsina;
@@ -224,48 +255,75 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
         `}</style>
       )}
 
+      {/* Per-message CSS overrides for emote/badge/emoji sizing */}
+      <style>{`
+        .chat-badge {
+          width: ${size.badgeSize} !important;
+          height: ${size.badgeSize} !important;
+          margin-right: ${size.badgeMarginRight};
+          margin-bottom: ${size.badgeMarginBottom};
+          vertical-align: middle;
+          border-radius: 10%;
+          display: inline-block;
+        }
+        .chat-badge:last-of-type {
+          margin-right: ${size.badgeLastMarginRight};
+        }
+        .chat-emote {
+          max-width: ${emoteMaxW};
+          max-height: ${emoteMaxH};
+          margin-right: ${size.emoteMarginRight};
+          vertical-align: middle;
+          display: inline-block;
+        }
+        .chat-emoji {
+          height: ${size.emojiHeight};
+          vertical-align: middle;
+          display: inline-block;
+        }
+        .chat-colon {
+          margin-right: ${size.colonMarginRight};
+        }
+      `}</style>
+
       {/* Debug */}
       {showDebug && debugLines.length > 0 && (
-        <div className="absolute top-3 left-3 text-sm bg-black/60 rounded p-1 z-20">
-          {debugLines.map((l, i) => <p key={i} className="leading-5 m-0">{l}</p>)}
+        <div style={{
+          position: 'absolute', top: 12, left: 12, fontSize: 13,
+          background: 'rgba(0,0,0,0.65)', borderRadius: 4, padding: '4px 8px', zIndex: 20,
+        }}>
+          {debugLines.map((l, i) => <p key={i} style={{ margin: 0, lineHeight: '1.4' }}>{l}</p>)}
         </div>
       )}
 
       {/* Pinned */}
       {cfg.showPinEnabled && pinnedMessage && (
-        <div className="absolute top-0 z-10 w-full bg-black/70 backdrop-blur-sm rounded-b px-2 pt-1 pb-2"
-             style={{ animation: 'chatPinSlide 150ms ease-out' }}>
-          <div className="flex items-center gap-1 pb-0.5 opacity-60" style={{ fontSize: '0.75em' }}>
-            <PinSVG /> <span className="font-semibold">Pinned Message</span>
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10,
+          background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)',
+          padding: '6px 10px 8px', borderRadius: '0 0 6px 6px',
+          animation: 'chatPinSlide 150ms ease-out',
+          fontFamily, fontWeight: 800, fontSize: size.fontSize,
+          ...(filter ? { filter } : {}),
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, paddingBottom: 4, opacity: 0.6, fontSize: '0.7em' }}>
+            <PinSVG /> <span style={{ fontWeight: 700 }}>Pinned Message</span>
           </div>
           <MessageLine
-            msg={pinnedMessage} shadowVal={shadowVal} strokeStyle={strokeStyle}
-            smallCaps={cfg.smallCaps ?? false} nlAfterName={cfg.nlAfterName ?? false}
-            hideNames={cfg.hideNames ?? false}
+            msg={pinnedMessage} size={size} emoteMaxH={emoteMaxH} emoteMaxW={emoteMaxW}
+            strokeCss={strokeCss} smallCaps={cfg.smallCaps ?? false}
+            nlAfterName={cfg.nlAfterName ?? false} hideNames={cfg.hideNames ?? false}
           />
         </div>
       )}
 
-      {/* Messages — rendered as batches */}
-      <div className="absolute bottom-0 left-0 w-full pb-1">
-        {displayedBatches.map(({ batchId, msgs }) => {
-          const content = msgs.map(renderLine);
-
-          if (cfg.animation === 'slide') {
-            return (
-              <BatchGroup key={batchId} animate wrapCls="">
-                {content}
-              </BatchGroup>
-            );
-          }
-          if (cfg.animation === 'fade') {
-            return (
-              <FadeBatch key={batchId} wrapCls="">
-                {content}
-              </FadeBatch>
-            );
-          }
-          return <div key={batchId}>{content}</div>;
+      {/* Messages container */}
+      <div style={containerStyle}>
+        {batches.map(({ id, msgs }) => {
+          const content = msgs.map(renderMsg);
+          if (cfg.animation === 'slide') return <SlideGroup key={id}>{content}</SlideGroup>;
+          if (cfg.animation === 'fade')  return <FadeGroup  key={id}>{content}</FadeGroup>;
+          return <div key={id}>{content}</div>;
         })}
       </div>
 
@@ -274,18 +332,6 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
           from { opacity: 0; transform: translateY(-6px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        /* Badge images: 1.1em tall, vertically centred — matches chatis */
-        .chat-badge-wrap img {
-          height: 1.1em !important;
-          width: auto !important;
-          vertical-align: middle;
-          display: inline-block;
-        }
-        /* Emote images: vertically centred */
-        .chat-msg-body img {
-          vertical-align: middle;
-          display: inline-block;
-        }
       `}</style>
     </div>
   );
@@ -293,11 +339,13 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
 
 /* ─── Single message line ───────────────────────────────── */
 function MessageLine({
-  msg, shadowVal, strokeStyle, smallCaps, nlAfterName, hideNames,
+  msg, size, emoteMaxH, emoteMaxW, strokeCss, smallCaps, nlAfterName, hideNames,
 }: {
   msg: ParsedMessage;
-  shadowVal: string;
-  strokeStyle: React.CSSProperties;
+  size: typeof SIZE_STYLES[string];
+  emoteMaxH: string;
+  emoteMaxW: string;
+  strokeCss: string;
   smallCaps: boolean;
   nlAfterName: boolean;
   hideNames: boolean;
@@ -312,47 +360,68 @@ function MessageLine({
         WebkitBackgroundClip: 'text',
         backgroundClip: 'text',
         backgroundSize: 'cover',
+        // Name-paints must reset stroke/shadow or they break
         WebkitTextStroke: '0px',
         textShadow: 'none',
       }
     : {
         color: msg.identity.color,
-        fontVariant: smallCaps ? 'small-caps' : undefined,
       };
 
   return (
-    <p style={{ margin: 0, padding: 0, wordBreak: 'break-word', lineHeight: 'inherit' }}>
-      {/* Badges — inline-flex, 1.1em height via global CSS above */}
-      {msg.identity.badges.length > 0 && (
-        <span className="chat-badge-wrap" style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '2px',
-          marginRight: '4px',
-          verticalAlign: 'middle',
-        }}>
-          {msg.identity.badges.map((badge, i) => (
-            <Fragment key={i}>{badge}</Fragment>
-          ))}
-        </span>
-      )}
-
-      {/* Username */}
+    // chatis: .user_info is inline-block, everything inline
+    // line-height comes from .chat_line in size CSS
+    <div style={{ lineHeight: size.lineHeight, display: hideNames ? 'block' : undefined }}>
+      {/* user_info: badges + username + colon — inline-block like chatis */}
       {!hideNames && (
-        <span className="font-bold" style={{ ...usernameStyle, verticalAlign: 'baseline' }}>
-          {msg.identity.username}
+        <span style={{ display: 'inline-block' }}>
+          {/* Badges */}
+          {msg.identity.badges.length > 0 && (
+            <>
+              {msg.identity.badges.map((badge, i) => (
+                // Wrap each badge node — force .chat-badge class onto the img inside
+                <span key={i} className="chat-badge-wrap">
+                  {badge}
+                </span>
+              ))}
+            </>
+          )}
+          {/* Username */}
+          <span style={{ ...usernameStyle, fontVariant: smallCaps ? 'small-caps' : undefined }}>
+            {msg.identity.username}
+          </span>
+          {/* Colon or newline */}
+          {!nlAfterName
+            ? <span className="chat-colon">:</span>
+            : <br />
+          }
         </span>
       )}
-
-      {/* Colon or newline */}
-      {!hideNames && !nlAfterName && <span style={{ verticalAlign: 'baseline' }}>:&nbsp;</span>}
-      {!hideNames && nlAfterName && <br />}
 
       {/* Message body */}
-      <span className="chat-msg-body" style={{ verticalAlign: 'baseline' }}>
+      <span className="chat-msg-body">
         {msg.message.map((node, i) => <Fragment key={i}>{node}</Fragment>)}
       </span>
-    </p>
+
+      {/* Force correct classes onto badge/emote imgs rendered by kick.ts */}
+      <style>{`
+        .chat-badge-wrap img {
+          width: ${size.badgeSize} !important;
+          height: ${size.badgeSize} !important;
+          margin-right: ${size.badgeMarginRight};
+          margin-bottom: ${size.badgeMarginBottom};
+          vertical-align: middle;
+          border-radius: 10%;
+          display: inline-block;
+        }
+        .chat-msg-body img {
+          max-width: ${emoteMaxW};
+          max-height: ${emoteMaxH};
+          vertical-align: middle;
+          display: inline-block;
+        }
+      `}</style>
+    </div>
   );
 }
 
