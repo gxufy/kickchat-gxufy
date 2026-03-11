@@ -454,8 +454,7 @@ export default function Page() {
 
         switch (cmd) {
           case 'ping':
-            showFloat(1, 'Pong!
-kickchat-gxufy', 3000);
+            showFloat(1, 'Pong!\nkickchat-gxufy', 3000);
             break;
 
           case 'reload':
