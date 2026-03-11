@@ -172,17 +172,25 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
           }
           ${cfg.font==='alsina' ? `@font-face { font-family:Alsina; src:url(https://chatis.is2511.com/v2/styles/Alsina_Ultrajada.ttf); }` : ''}
 
-          /* Badge sizing — exact from size_*.css .badge */
-          .ck-bw img {
+          /* Badge sizing — exact from size_*.css .badge
+             Targets both the wrapper-child selector AND the direct class
+             to override any remaining Tailwind/inline size attrs */
+          .ck-bw img,
+          img.ck-badge-img {
             width:          ${sz.badgeW} !important;
             height:         ${sz.badgeH} !important;
+            min-width:      ${sz.badgeW} !important;
+            min-height:     ${sz.badgeH} !important;
+            max-width:      ${sz.badgeW} !important;
+            max-height:     ${sz.badgeH} !important;
             margin-right:   ${sz.badgeMR};
             margin-bottom:  ${sz.badgeMB};
             vertical-align: middle;
             border-radius:  10%;
             display:        inline-block;
           }
-          .ck-bw img:last-of-type { margin-right: ${sz.badgeLastMR}; }
+          .ck-bw img:last-of-type,
+          .ck-bw img.ck-badge-img:last-of-type { margin-right: ${sz.badgeLastMR}; }
 
           /* Emote sizing — exact from size_*.css .emote */
           .ck-body img {
