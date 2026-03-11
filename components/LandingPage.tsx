@@ -96,8 +96,8 @@ export default function LandingPage() {
   return (
     <>
       <Head>
-        <title>Kick Chat Overlay Setup</title>
-        <meta name="description" content="Free Kick chat overlay for OBS with 7TV emotes, badges, name-paints." />
+        <title>kickchat-gxufy | Kick Chat Overlay</title>
+        <meta name="description" content="Free Kick chat overlay for OBS by gxufy — 7TV emotes, badges, name-paints." />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet" />
@@ -109,13 +109,13 @@ export default function LandingPage() {
         *, *::before, *::after { box-sizing: border-box; }
         html, body {
           margin: 0; padding: 0;
-          background: #1a1a2e;
-          color: #e8e8f0;
+          background: #111a11;
+          color: #dff0df;
           font-family: 'Open Sans', system-ui, sans-serif;
           font-size: 16px;
         }
-        a { color: #9d60ff; }
-        a:hover { color: #c084fc; }
+        a { color: #53fc18; }
+        a:hover { color: #7aff4a; }
 
         /* ── Page wrapper ── */
         .page { max-width: 820px; margin: 0 auto; padding: 0 20px 60px; }
@@ -124,30 +124,30 @@ export default function LandingPage() {
         header {
           display: flex; align-items: center; gap: 16px;
           padding: 20px 0 16px;
-          border-bottom: 1px solid #2a2a45;
+          border-bottom: 1px solid #2a4a2a;
           margin-bottom: 20px;
         }
         header h1 { margin: 0; font-size: 1.8rem; font-weight: 800; color: #fff; letter-spacing: -.02em; }
-        header h2 { margin: 0; font-size: 1rem; font-weight: 400; color: #6b6b9a; }
+        header h2 { margin: 0; font-size: 1rem; font-weight: 400; color: #5a8a5a; }
 
         /* ── Intro text ── */
-        .intro { font-size: 1rem; line-height: 1.7; color: #9090b8; margin-bottom: 20px; }
-        .intro em { color: #c084fc; font-style: normal; font-weight: 700; }
+        .intro { font-size: 1rem; line-height: 1.7; color: #8aaa8a; margin-bottom: 20px; }
+        .intro em { color: #7aff4a; font-style: normal; font-weight: 700; }
         .intro a { color: #53fc18; }
 
         /* ── Feature list ── */
-        #feature-list { color: #7070a0; font-size: 0.9rem; line-height: 1.9; padding-left: 1.2rem; margin-bottom: 24px; }
-        #feature-list li::marker { color: #9d60ff; }
+        #feature-list { color: #7a9a7a; font-size: 0.9rem; line-height: 1.9; padding-left: 1.2rem; margin-bottom: 24px; }
+        #feature-list li::marker { color: #53fc18; }
 
         /* ── Form ── */
-        form[name="generator"] { background: #12122a; border: 1px solid #2a2a45; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        form[name="generator"] { background: #152015; border: 1px solid #2a4a2a; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
 
         .form_row.center { display: flex; justify-content: center; margin-bottom: 14px; }
         .form_row.center input[type=text] { width: 100%; max-width: 400px; text-align: center; font-size: 1.1rem; padding: 8px 14px; }
 
         .form_table { display: flex; gap: 0; margin-bottom: 14px; }
         .form_col { flex: 1; }
-        .form_col:first-child { border-right: 1px solid #2a2a45; padding-right: 20px; }
+        .form_col:first-child { border-right: 1px solid #2a4a2a; padding-right: 20px; }
         .form_col:last-child  { padding-left: 20px; }
 
         .form_row { display: flex; align-items: center; margin-bottom: 10px; gap: 8px; }
@@ -157,14 +157,14 @@ export default function LandingPage() {
 
         /* Inputs & selects */
         input[type=text], input[type=number], select {
-          background: #1e1e3a; border: 1px solid #3a3a5a;
-          border-radius: 4px; color: #e8e8f0;
+          background: #1a2e1a; border: 1px solid #2a4a2a;
+          border-radius: 4px; color: #dff0df;
           padding: 4px 10px; font-size: 0.88rem;
           font-family: inherit; outline: none;
           transition: border-color .15s;
         }
-        input[type=text]:focus, input[type=number]:focus, select:focus { border-color: #9d60ff; }
-        select option { background: #1e1e3a; }
+        input[type=text]:focus, input[type=number]:focus, select:focus { border-color: #53fc18; }
+        select option { background: #1a2e1a; }
         input[type=text]:disabled { opacity: 0.35; cursor: not-allowed; }
 
         input[type=text].short { width: 52px; }
@@ -172,11 +172,11 @@ export default function LandingPage() {
         /* Checkboxes — larger, styled */
         input[type=checkbox] {
           width: 16px; height: 16px; cursor: pointer;
-          accent-color: #9d60ff;
+          accent-color: #53fc18;
         }
 
         /* Form labels */
-        label { font-size: 0.88rem; color: #8080aa; cursor: pointer; user-select: none; }
+        label { font-size: 0.88rem; color: #7a9a7a; cursor: pointer; user-select: none; }
         label abbr { text-decoration: underline dotted; cursor: help; }
 
         /* ── Submit / preview area ── */
@@ -188,8 +188,8 @@ export default function LandingPage() {
         /* ── Preview box — replicates chatis #example ── */
         #example {
           flex: 1; min-width: 280px;
-          background: repeating-conic-gradient(#111827 0% 25%, #0f172a 0% 50%) 0 0 / 18px 18px;
-          border: 1px solid #2a2a45; border-radius: 6px;
+          background: repeating-conic-gradient(#162216 0% 25%, #111a11 0% 50%) 0 0 / 18px 18px;
+          border: 1px solid #2a4a2a; border-radius: 6px;
           overflow: hidden; position: relative;
           /* Height is driven by content — no fixed min-height.
              The inner div is static so the box grows with font size. */
@@ -210,24 +210,24 @@ export default function LandingPage() {
 
         /* Generate button */
         input[type=submit] {
-          background: #9d60ff; color: #fff; border: none;
+          background: #53fc18; color: #fff; border: none;
           border-radius: 6px; font-size: 1rem; font-weight: 700;
           padding: 10px 28px; cursor: pointer; font-family: inherit;
           transition: background .15s; align-self: flex-end;
         }
-        input[type=submit]:hover { background: #b07fff; }
+        input[type=submit]:hover { background: #7aff4a; }
 
         /* ── URL result ── */
         #result { margin-bottom: 20px; }
         .url-box { display: flex; gap: 8px; align-items: stretch; }
         .url-code {
-          flex: 1; background: #080818; border: 1px solid #1e1e3a;
+          flex: 1; background: #0d180d; border: 1px solid #2a4a2a;
           border-radius: 5px; padding: 9px 12px;
           font-family: 'Roboto Mono', monospace; font-size: 0.72rem;
-          color: #9d60ff; word-break: break-all; line-height: 1.7;
+          color: #53fc18; word-break: break-all; line-height: 1.7;
         }
         .url-copy {
-          flex-shrink: 0; background: #9d60ff; color: #fff; border: none;
+          flex-shrink: 0; background: #53fc18; color: #fff; border: none;
           border-radius: 5px; font-weight: 800; font-size: 0.85rem;
           padding: 0 20px; cursor: pointer; transition: background .15s; font-family: inherit;
         }
@@ -236,24 +236,24 @@ export default function LandingPage() {
 
         /* ── Setup instructions ── */
         .setup-section { margin-top: 20px; }
-        .setup-section h2 { font-size: 1rem; color: #9d60ff; font-weight: 700; margin: 0 0 10px; text-transform: uppercase; letter-spacing: .07em; }
+        .setup-section h2 { font-size: 1rem; color: #53fc18; font-weight: 700; margin: 0 0 10px; text-transform: uppercase; letter-spacing: .07em; }
         .steps { list-style: none; padding: 0; margin: 0; counter-reset: s; }
-        .steps li { counter-increment: s; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 9px; font-size: 0.88rem; color: #7070a0; line-height: 1.5; }
-        .steps li::before { content: counter(s); background: #1e1e3a; border: 1px solid #3a3a5a; border-radius: 50%; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; color: #6060a0; flex-shrink: 0; margin-top: 1px; }
-        .steps li strong { color: #a0a0cc; }
+        .steps li { counter-increment: s; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 9px; font-size: 0.88rem; color: #7a9a7a; line-height: 1.5; }
+        .steps li::before { content: counter(s); background: #1a2e1a; border: 1px solid #2a4a2a; border-radius: 50%; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; color: #6a8a6a; flex-shrink: 0; margin-top: 1px; }
+        .steps li strong { color: #b0d0b0; }
 
         /* ── Footer ── */
-        footer { border-top: 1px solid #1e1e3a; padding: 20px 0; text-align: center; font-size: 0.82rem; color: #3a3a5a; margin-top: 40px; }
+        footer { border-top: 1px solid #2a4a2a; padding: 20px 0; text-align: center; font-size: 0.82rem; color: #7aaa7a; margin-top: 40px; }
         footer p { margin: 4px 0; }
-        footer a { color: #5a5a8a; }
+        footer a { color: #53fc18; }
 
         /* ── Bot names row (full width) ── */
         #botNamesContainer {
-          border-top: 1px solid #2a2a45; margin-top: 10px; padding-top: 12px;
+          border-top: 1px solid #2a4a2a; margin-top: 10px; padding-top: 12px;
           justify-content: flex-start; gap: 10px;
         }
         #botNamesContainer input { flex: 1; }
-        #botNamesContainer label { white-space: nowrap; color: #8080aa; font-size: 0.88rem; }
+        #botNamesContainer label { white-space: nowrap; color: #7a9a7a; font-size: 0.88rem; }
       `}</style>
 
       <div className="page">
@@ -261,14 +261,14 @@ export default function LandingPage() {
         {/* ── Header — matches chatis header ── */}
         <header>
           <div>
-            <h1>Kick Chat Overlay</h1>
+            <h1>kickchat-gxufy</h1>
             <h2>Setup</h2>
           </div>
         </header>
 
         {/* ── Intro — mirrors chatis intro text style ── */}
         <p className="intro">
-          <em>Kick Chat Overlay</em> is a free browser source overlay for OBS, Streamlabs, and any streaming software that supports browser sources.
+          <em>kickchat-gxufy</em> is a free browser source overlay for OBS, Streamlabs, and any streaming software that supports browser sources.
           It supports <a href="https://7tv.app/" target="_blank" rel="noreferrer">7TV</a> emotes, name-paints, zero-width stacking, and live emote updates via the 7TV EventAPI.
           You can choose a font, enable smooth animations for new messages, or fade old ones after some time.
         </p>
@@ -426,8 +426,8 @@ export default function LandingPage() {
                     <label key={v} style={{ display:'flex', alignItems:'center', gap:4, cursor:'pointer' }}>
                       <input type="radio" name="textBgWidth" value={v}
                         checked={textBgWidth === v} onChange={() => setTextBgWidth(v)}
-                        style={{ accentColor:'#9d60ff' }} />
-                      <span style={{ fontSize:'0.78rem', color: textBgWidth===v ? '#c084fc' : '#6060a0' }}>
+                        style={{ accentColor:'#53fc18' }} />
+                      <span style={{ fontSize:'0.78rem', color: textBgWidth===v ? '#7aff4a' : '#6060a0' }}>
                         {v === 'min' ? 'Fit' : 'Full'}
                       </span>
                     </label>
@@ -518,8 +518,6 @@ export default function LandingPage() {
             <li>Fill in your channel name and configure options, then click <strong>Generate</strong> / Copy</li>
             <li>In OBS: <strong>Add Source → Browser Source</strong></li>
             <li>Paste the URL — recommended: <strong>830 × 230</strong> (matches chatis default)</li>
-            <li>Enable <strong>"Shutdown source when not visible"</strong></li>
-            <li>Enable <strong>"Refresh browser when scene becomes active"</strong></li>
           </ol>
         </div>
 
@@ -527,9 +525,9 @@ export default function LandingPage() {
 
       {/* ── Footer — matches chatis footer ── */}
       <footer>
-        <p>Kick Chat Overlay with ❤ — <a href="https://github.com/gxufy/kick-chat-overlay3" target="_blank" rel="noreferrer">GitHub</a></p>
+        <p>kickchat-gxufy with 🕊️ — <a href="https://x.com/Gxufy_" target="_blank" rel="noreferrer">https://x.com/Gxufy_</a></p>
         <p>Inspired by <a href="https://chatis.is2511.com/" target="_blank" rel="noreferrer">ChatIS</a> by IS2511 &amp; giambaJ</p>
-        <p>This application is not affiliated with <a href="https://kick.com">Kick</a></p>
+        <p>This application is not affiliated with <a href="https://kick.com" target="_blank" rel="noreferrer">Kick</a></p>
       </footer>
     </>
   );
