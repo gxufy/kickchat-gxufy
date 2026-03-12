@@ -345,7 +345,7 @@ function PinBanner({ msg, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strok
   useEffect(() => {
     setVisible(true);
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setVisible(false), 10000);
+    timerRef.current = setTimeout(() => setVisible(false), 7000);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [msg.id]);
 
