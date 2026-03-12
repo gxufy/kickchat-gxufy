@@ -406,7 +406,7 @@ export default function Page() {
         removeFloat(id);
         // Chatis fires showFloat on document.ready BEFORE size CSS loads,
         // so it gets browser default ~16px. We hardcode 14px to match that small look.
-        const chatFontSize = '14px';
+        const chatFontSize = '18px';
         const el = document.createElement('pre');
         el.style.cssText = [
           'position:fixed',
