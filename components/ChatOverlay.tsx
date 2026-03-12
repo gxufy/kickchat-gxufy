@@ -67,22 +67,65 @@ function getStroke(s: string) {
   return m[s] ?? '';
 }
 
-/* Batch slide — chatis 200ms flush, one animation per batch */
+/* Batch slide — exact chatis jQuery behaviour:
+ *
+ * Chatis does NOT slide the content in. It:
+ *   1. Measures the natural height of the incoming batch (via hidden ghost div)
+ *   2. Inserts an EMPTY ghost div at height 0 into the container
+ *   3. Animates that ghost div 0 → naturalHeight over 150ms (jQuery swing = ease-in-out)
+ *   4. In the animation COMPLETE callback: removes ghost, inserts real content
+ *
+ * Effect: space opens up (older messages get pushed), THEN content snaps in.
+ * Content never moves — only the space moves.
+ * Each batch runs its OWN independent 150ms regardless of how fast chat moves.
+ * New batches never interrupt previous batches — they just stack their own ghost divs.
+ */
 function SlideGroup({ children }: { children: React.ReactNode }) {
-  const [h, setH] = useState<number|'auto'>(0);
-  const ref = useRef<HTMLDivElement>(null);
+  // Phase: 'ghost' = empty div expanding, 'content' = real content visible
+  const [phase, setPhase] = useState<'ghost' | 'content'>('ghost');
+  const [ghostH, setGhostH] = useState(0);
+  const measureRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    if (!ref.current) return;
-    const height = ref.current.getBoundingClientRect().height;
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      setH(height);
-      setTimeout(() => setH('auto'), 155);
-    }));
+    if (!measureRef.current) return;
+    // Measure natural height while hidden off-screen
+    const h = measureRef.current.getBoundingClientRect().height;
+    // rAF 1: paint ghost at h=0
+    requestAnimationFrame(() => {
+      setGhostH(0);
+      // rAF 2: trigger transition to naturalH (jQuery swing = ease-in-out)
+      requestAnimationFrame(() => {
+        setGhostH(h);
+        // After 150ms animation: remove ghost, show real content (jQuery callback)
+        setTimeout(() => setPhase('content'), 150);
+      });
+    });
   }, []);
+
+  if (phase === 'content') {
+    return <>{children}</>;
+  }
+
   return (
-    <div style={{ height: h === 'auto' ? 'auto' : h, overflow:'hidden', transition: h==='auto'?'none':'height 150ms linear' }}>
-      <div ref={ref}>{children}</div>
-    </div>
+    <>
+      {/* Ghost div: opens space exactly like chatis $animDiv */}
+      <div style={{
+        height: ghostH,
+        overflow: 'hidden',
+        transition: 'height 150ms ease-in-out',
+      }} />
+      {/* Measure div: off-screen, invisible, used only to get natural height */}
+      <div ref={measureRef} style={{
+        position: 'fixed',
+        top: '-9999px',
+        left: '-9999px',
+        visibility: 'hidden',
+        pointerEvents: 'none',
+        width: 'calc(100vw - 40px)', // match chat_container width
+      }}>
+        {children}
+      </div>
+    </>
   );
 }
 
@@ -289,7 +332,7 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
   );
 }
 
-/* PinBanner — shows pinned message, auto-hides after 5s, scrolls if too long */
+/* PinBanner — shows pinned message, auto-hides after 10s, no scrollbar */
 function PinBanner({ msg, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strokeVal, smallCaps, nlAfterName, hideNames }: {
   msg: ParsedMessage; sz: typeof SIZE[SzKey];
   emoteMaxH:string; emoteMaxW:string; fontFamily:string;
@@ -302,7 +345,7 @@ function PinBanner({ msg, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strok
   useEffect(() => {
     setVisible(true);
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setVisible(false), 5000);
+    timerRef.current = setTimeout(() => setVisible(false), 10000);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [msg.id]);
 
@@ -315,8 +358,9 @@ function PinBanner({ msg, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strok
       padding:'6px 10px 8px', borderRadius:'0 0 6px 6px',
       animation:'ckPin 150ms ease-out',
       fontFamily, fontWeight:800, fontSize:sz.fontSize,
-      color:'white', wordBreak:'break-word',
-      maxHeight:'40%', overflowY:'auto',
+      color:'white',
+      wordBreak:'break-word', overflowWrap:'break-word',
+      overflow:'hidden',           // no scrollbar ever
       ...(filterVal ? { filter:filterVal } : {}),
       ...(strokeVal ? { WebkitTextStroke:strokeVal } : {}),
     }}>
