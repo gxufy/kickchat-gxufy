@@ -475,6 +475,7 @@ export default function Page() {
 
           case 'refresh':
             if (!args[2] || args[2] === 'emotes') {
+              showFloat(9, '🔄 Reloading emotes...', 10000, 0.7);
               (async () => {
                 try {
                   const globals = await getSevenTVGlobalEmotes();
@@ -484,7 +485,10 @@ export default function Page() {
                     const { emotes: ce } = await getSevenTVChannelEmotes(ch.user_id.toString());
                     s.emotes.push(...ce);
                   }
-                } catch (_) {}
+                  showFloat(9, '✅ Emotes reloaded!', 2000, 0.7);
+                } catch (_) {
+                  showFloat(9, '❌ Emote reload failed', 2000, 0.7);
+                }
               })();
             }
             break;
