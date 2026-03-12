@@ -23,12 +23,10 @@ const PSZ = {
 } as const;
 type SzKey = keyof typeof PSZ;
 
-// Preview messages with real 7TV emotes, badges, paints
-// Badges use real Kick badge URLs, 7TV emotes use real CDN URLs
+// Preview messages — real 7TV emote IDs, real badge SVGs, name-paints
 const PREV_MSGS = [
   {
     color: '#FF6B35',
-    // Orange gradient paint
     paint: 'linear-gradient(135deg, #FF6B35, #F7C59F)',
     user: 'giambaJ',
     badges: [
@@ -36,7 +34,7 @@ const PREV_MSGS = [
       { src: '/badges/moderator.svg', alt: 'moderator' },
     ],
     msg: 'Nice chat',
-    emotes: [{ src: 'https://cdn.7tv.app/emote/6304e8af5f7b9d53a8be7f03/2x.webp', alt: 'GIGACHAD' }],
+    emotes: [{ src: 'https://cdn.7tv.app/emote/60ae9f69a3a57b703b9cb034/2x.webp', alt: 'GIGACHAD' }],
   },
   {
     color: '#53fc18',
@@ -44,6 +42,7 @@ const PREV_MSGS = [
     user: 'IS2511',
     badges: [
       { src: '/badges/verified.svg', alt: 'verified' },
+      { src: '/badges/staff.svg', alt: 'staff' },
     ],
     msg: 'jChat but better',
     strike: true,
@@ -53,18 +52,20 @@ const PREV_MSGS = [
     color: '#5b87ff',
     paint: null,
     user: 'iinnkii',
-    badges: [{ src: '/badges/moderator.svg', alt: 'mod' }],
+    badges: [
+      { src: '/badges/moderator.svg', alt: 'mod' },
+      { src: '/badges/sidekick.svg', alt: 'sidekick' },
+    ],
     msg: 'This overlay goes crazy',
-    emotes: [{ src: 'https://cdn.7tv.app/emote/60ae9f69a3a57b703b9cb034/2x.webp', alt: 'peepoHappy' }],
+    emotes: [{ src: 'https://cdn.7tv.app/emote/6304e8af5f7b9d53a8be7f03/2x.webp', alt: 'peepoHappy' }],
   },
   {
     color: '#D399FF',
-    // Purple shimmer paint
     paint: 'linear-gradient(90deg, #D399FF, #a855f7, #D399FF)',
     user: 'TristianJones116',
     badges: [
       { src: '/badges/subscriber.svg', alt: 'sub' },
-      { src: '/badges/vip.svg', alt: 'vip' },
+      { src: '/badges/trainwreckstv.svg', alt: 'trainwreckstv' },
     ],
     msg: '',
     emotes: [{ src: 'https://cdn.7tv.app/emote/60b02ab44d08800edf9c8b28/2x.webp', alt: 'monkaS' }],
@@ -73,7 +74,10 @@ const PREV_MSGS = [
     color: '#FF4B6E',
     paint: null,
     user: 'batouttahell24',
-    badges: [{ src: '/badges/subscriber.svg', alt: 'sub' }],
+    badges: [
+      { src: '/badges/subscriber.svg', alt: 'sub' },
+      { src: '/badges/og.svg', alt: 'og' },
+    ],
     msg: 'jchat 2: electric boogaloo',
     emotes: [{ src: 'https://cdn.7tv.app/emote/60420e3f77137b000de9e675/2x.webp', alt: 'KEKW' }],
   },
