@@ -287,8 +287,6 @@ export default function ChatOverlay({ config, messages, pinnedMessage, showLoade
       </Head>
 
 {showLoader && (
-        /* Exact chatis #loader position: left:calc(50%-60px), bottom:calc(20%-60px)
-           border:none, image inside spinning wrapper — 2s linear */
         <div style={{
           position: 'absolute',
           left: 'calc(50% - 64px)',
