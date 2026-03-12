@@ -7,8 +7,6 @@ interface Props {
   config: OverlayConfig;
   messages: ParsedMessage[];
   pinnedMessage: ParsedMessage | null;
-  debugLines: string[];
-  showDebug: boolean;
 }
 
 const FONT_FAMILIES: Record<string, string> = {
@@ -135,7 +133,7 @@ function FadeGroup({ children }: { children: React.ReactNode }) {
   return <div style={{ opacity:op, transition:'opacity 220ms ease-in-out' }}>{children}</div>;
 }
 
-export default function ChatOverlay({ config, messages, pinnedMessage, debugLines, showDebug }: Props) {
+export default function ChatOverlay({ config, messages, pinnedMessage }: Props) {
   const cfg = config as OverlayConfig & {
     font?:string; stroke?:string; emoteScale?:number;
     smallCaps?:boolean; nlAfterName?:boolean; hideNames?:boolean;
@@ -279,27 +277,11 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
             from { opacity:0; transform:translateY(-6px); }
             to   { opacity:1; transform:translateY(0); }
           }
-          @keyframes ckSpin {
-            from { transform: rotate(0deg); }
-            to   { transform: rotate(360deg); }
-          }
+
         `}</style>
       </Head>
 
-      {showDebug && debugLines.length > 0 && (
-        /* Exact chatis loader: spinning image, single text line below, no bg/shadow/border */
-        <div style={{
-          position: 'absolute', left: 'calc(50% - 64px)', bottom: '20%',
-          zIndex: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
-        }}>
-          <div style={{ animation: 'ckSpin 2s linear infinite', width: 128, height: 128 }}>
-            <img src="/kick-logo.png" alt="Loading..." width={128} height={128} style={{ display: 'block' }} />
-          </div>
-          <p style={{ margin: 0, color: '#fff', fontFamily: 'sans-serif', fontSize: 13, fontWeight: 700, textAlign: 'center', whiteSpace: 'pre' }}>
-            Kick Chat Overlay made by @Gxufy
-          </p>
-        </div>
-      )}
+{/* startup float is fired via showFloat in index.tsx — no DOM here */}
 
       {cfg.showPinEnabled && pinnedMessage && (
         <PinBanner
