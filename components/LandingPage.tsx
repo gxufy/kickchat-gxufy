@@ -44,7 +44,7 @@ export default function LandingPage() {
   const [textShadow,  setTextShadow]  = useState('small');
   const [stroke,      setStroke]      = useState('none');
   const [animation,   setAnimation]   = useState('slide');
-  const [fade,        setFade]        = useState('');
+  const [fade,        setFade]        = useState('30');
   const [fadeBool,    setFadeBool]    = useState(false);
   const [showPin,     setShowPin]     = useState(false);
   const [textBg,      setTextBg]      = useState(false);
@@ -264,24 +264,43 @@ export default function LandingPage() {
           </div>
         </header>
 
-        {/* ── Intro — mirrors chatis intro text style ── */}
-        <p className="intro">
-          <em>kickchat-gxufy</em> is a free browser source overlay for OBS, Streamlabs, and any streaming software that supports browser sources.
-          It supports <a href="https://7tv.app/" target="_blank" rel="noreferrer">7TV</a> emotes, name-paints, zero-width stacking, and live emote updates via the 7TV EventAPI.
-          You can choose a font, enable smooth animations for new messages, or fade old ones after some time.
-        </p>
-
-        <p style={{ marginBottom:'0.2rem', fontSize:'1rem', color:'#888' }}>Feature list:</p>
+        {/* ── Feature list ── */}
+        <p style={{ marginBottom:'0.2rem', fontSize:'1rem', color:'#888' }}>Features:</p>
         <ul id="feature-list">
-          <li>7TV global + channel emotes with live updates</li>
+          <li>7TV global + channel emotes with live emote set updates</li>
           <li>7TV cosmetics — name-paints and badges</li>
           <li>Zero-width emote stacking</li>
-          <li>Sub, Mod, VIP, Broadcaster, Founder badges</li>
-          <li>Batched slide / fade animations (no stutter on fast chat)</li>
-          <li>Stroke, shadow, font options</li>
-          <li>Name-paints from 7TV</li>
-          <li>Pinned message banner</li>
+          <li>Kick badges — Sub, Mod, VIP, Broadcaster, Founder, Verified, Staff, OG</li>
+          <li>Smooth slide-in animation for new messages</li>
+          <li>Old messages fade out automatically after a set time</li>
+          <li>Spinning Kick logo loader on connect</li>
+          <li>Bot filtering — built-in list + custom bot names</li>
+          <li>Pinned message banner (auto-dismisses after 7s)</li>
+          <li>Font, stroke, shadow, emote scale options</li>
+          <li>Chat commands for mods &amp; broadcaster (!kickchat)</li>
+          <li>Auto-reconnect — never goes dead mid-stream</li>
         </ul>
+
+        {/* ── Commands reference — BEFORE the form ── */}
+        <div className="commands-section" style={{ marginBottom: 24 }}>
+          <h2>Chat Commands</h2>
+          <p style={{ fontSize:'0.82rem', color:'#888', marginBottom:10 }}>
+            Type these in Kick chat. Mods and broadcaster only.
+          </p>
+          <table className="cmd-table">
+            <thead><tr><th>Command</th><th>Description</th><th>Access</th></tr></thead>
+            <tbody>
+              <tr><td>!kickchat ping</td><td>Shows a &ldquo;Pong!&rdquo; notification on screen</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!kickchat reload</td><td>Reloads the browser source</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!kickchat stop</td><td>Clears all active overlays (img, yt)</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!kickchat show / hide</td><td>Shows or hides the chat</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!kickchat refresh emotes</td><td>Reloads 7TV emotes without a page refresh</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!kickchat img [url or 7TV emote] -t [sec] -o [opacity]</td><td>Fullscreen image or 7TV emote (e.g. GIGACHAD). <code style={{color:'#53fc18'}}>img clear</code> to dismiss</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!kickchat yt [url or preset] -t [sec] -m</td><td>Fullscreen YouTube video. Presets: bruh, vine-boom, rickroll, dc-ping, win-error. <code style={{color:'#53fc18'}}>-m</code> to mute</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!kickchat tts [message] -v [vol]</td><td>Text-to-speech via StreamElements (Brian voice)</td><td className="cmd-access">Mod+</td></tr>
+            </tbody>
+          </table>
+        </div>
 
         {/* ── Generator form — matches chatis layout exactly ── */}
         <form name="generator" onSubmit={e => { e.preventDefault(); copy(); }}>
@@ -384,7 +403,7 @@ export default function LandingPage() {
                   onChange={e => setFade(e.target.value)} />
                 <span style={{ fontSize:'0.8rem', color:'#888', display: fadeBool ? 'inline' : 'none' }}>sec</span>
                 <input type="checkbox" name="fade_bool" checked={fadeBool}
-                  onChange={e => setFadeBool(e.target.checked)} />
+                  onChange={e => { setFadeBool(e.target.checked); if (e.target.checked && !fade) setFade('30'); }} />
               </div>
 
               <div className="form_row right">
@@ -528,27 +547,6 @@ export default function LandingPage() {
           </ol>
         </div>
 
-        {/* ── Commands reference ── */}
-        <div className="commands-section">
-          <h2>Chat Commands</h2>
-          <p style={{ fontSize:'0.82rem', color:'#888', marginBottom:10 }}>
-            Broadcaster and mods can trigger these in Kick chat. Replace <code style={{color:'#53fc18'}}>!kickchat</code> with the command below.
-            Mods have access to most commands; broadcaster gets all.
-          </p>
-          <table className="cmd-table">
-            <thead><tr><th>Command</th><th>Description</th><th>Access</th></tr></thead>
-            <tbody>
-              <tr><td>!kickchat ping</td><td>Shows a "Pong!" overlay on screen</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!kickchat reload</td><td>Reloads the browser source</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!kickchat stop</td><td>Stops all active overlays (img, yt)</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!kickchat show / hide</td><td>Shows or hides the chat overlay</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!kickchat refresh emotes</td><td>Reloads 7TV emotes without refreshing the page</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!kickchat img [url or 7TV emote] -t [sec] -o [opacity]</td><td>Displays an image or 7TV emote name (e.g. GIGACHAD) fullscreen for N seconds</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!kickchat yt [url or preset] -t [sec]</td><td>Plays a YouTube video/sound. Presets: bruh, vine-boom, rickroll, dc-ping, win-error</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!kickchat tts [message] -v [vol]</td><td>Text-to-speech via StreamElements TTS</td><td className="cmd-access">Mod+</td></tr>
-            </tbody>
-          </table>
-        </div>
 
       </div>
 
