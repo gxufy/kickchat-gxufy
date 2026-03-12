@@ -80,7 +80,7 @@ function SlideGroup({ children }: { children: React.ReactNode }) {
     }));
   }, []);
   return (
-    <div style={{ height: h === 'auto' ? 'auto' : h, overflow:'hidden', transition: h==='auto'?'none':'height 150ms ease-out' }}>
+    <div style={{ height: h === 'auto' ? 'auto' : h, overflow:'hidden', transition: h==='auto'?'none':'height 150ms linear' }}>
       <div ref={ref}>{children}</div>
     </div>
   );
@@ -246,23 +246,11 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
       )}
 
       {cfg.showPinEnabled && pinnedMessage && (
-        <div style={{
-          position:'absolute', top:0, left:0, right:0, zIndex:10,
-          background:'rgba(0,0,0,0.75)', backdropFilter:'blur(4px)',
-          padding:'6px 10px 8px', borderRadius:'0 0 6px 6px',
-          animation:'ckPin 150ms ease-out',
-          fontFamily, fontWeight:800, fontSize:sz.fontSize,
-          color:'white', wordBreak:'break-word',
-          ...(filterVal ? { filter:filterVal } : {}),
-          ...(strokeVal ? { WebkitTextStroke:strokeVal } : {}),
-        }}>
-          <div style={{ display:'flex', alignItems:'center', gap:4, paddingBottom:4, opacity:0.6, fontSize:'0.7em' }}>
-            <PinSVG /> <span style={{ fontWeight:700 }}>Pinned Message</span>
-          </div>
-          <MsgLine msg={pinnedMessage} sz={sz} emoteMaxH={emoteMaxH} emoteMaxW={emoteMaxW}
-            stroke={strokeVal} smallCaps={cfg.smallCaps??false}
-            nlAfterName={cfg.nlAfterName??false} hideNames={cfg.hideNames??false} />
-        </div>
+        <PinBanner
+          msg={pinnedMessage} sz={sz} emoteMaxH={emoteMaxH} emoteMaxW={emoteMaxW}
+          fontFamily={fontFamily} filterVal={filterVal} strokeVal={strokeVal}
+          smallCaps={cfg.smallCaps??false} nlAfterName={cfg.nlAfterName??false} hideNames={cfg.hideNames??false}
+        />
       )}
 
       {/*
@@ -301,6 +289,47 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
   );
 }
 
+/* PinBanner — shows pinned message, auto-hides after 5s, scrolls if too long */
+function PinBanner({ msg, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strokeVal, smallCaps, nlAfterName, hideNames }: {
+  msg: ParsedMessage; sz: typeof SIZE[SzKey];
+  emoteMaxH:string; emoteMaxW:string; fontFamily:string;
+  filterVal:string; strokeVal:string;
+  smallCaps:boolean; nlAfterName:boolean; hideNames:boolean;
+}) {
+  const [visible, setVisible] = useState(true);
+  const timerRef = useRef<ReturnType<typeof setTimeout>|null>(null);
+
+  useEffect(() => {
+    setVisible(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setVisible(false), 5000);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [msg.id]);
+
+  if (!visible) return null;
+
+  return (
+    <div style={{
+      position:'absolute', top:0, left:0, right:0, zIndex:10,
+      background:'rgba(0,0,0,0.75)', backdropFilter:'blur(4px)',
+      padding:'6px 10px 8px', borderRadius:'0 0 6px 6px',
+      animation:'ckPin 150ms ease-out',
+      fontFamily, fontWeight:800, fontSize:sz.fontSize,
+      color:'white', wordBreak:'break-word',
+      maxHeight:'40%', overflowY:'auto',
+      ...(filterVal ? { filter:filterVal } : {}),
+      ...(strokeVal ? { WebkitTextStroke:strokeVal } : {}),
+    }}>
+      <div style={{ display:'flex', alignItems:'center', gap:4, paddingBottom:4, opacity:0.6, fontSize:'0.7em' }}>
+        <PinSVG /> <span style={{ fontWeight:700 }}>Pinned Message</span>
+      </div>
+      <MsgLine msg={msg} sz={sz} emoteMaxH={emoteMaxH} emoteMaxW={emoteMaxW}
+        stroke={strokeVal} smallCaps={smallCaps}
+        nlAfterName={nlAfterName} hideNames={hideNames} />
+    </div>
+  );
+}
+
 function MsgLine({ msg, sz, emoteMaxH, emoteMaxW, stroke, smallCaps, nlAfterName, hideNames }: {
   msg: ParsedMessage; sz: typeof SIZE[SzKey];
   emoteMaxH:string; emoteMaxW:string; stroke:string;
@@ -326,7 +355,7 @@ function MsgLine({ msg, sz, emoteMaxH, emoteMaxW, stroke, smallCaps, nlAfterName
           <span style={nameStyle}>{msg.identity.username}</span>
           {!nlAfterName ? <span className="ck-colon">:</span> : <br />}
         </span>
-      )}{' '}
+      )}
       <span className="ck-body">
         {msg.message.map((node,i) => <Fragment key={i}>{node}</Fragment>)}
       </span>
