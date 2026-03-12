@@ -7,6 +7,7 @@ interface Props {
   config: OverlayConfig;
   messages: ParsedMessage[];
   pinnedMessage: ParsedMessage | null;
+  showLoader: boolean;
 }
 
 const FONT_FAMILIES: Record<string, string> = {
@@ -133,7 +134,7 @@ function FadeGroup({ children }: { children: React.ReactNode }) {
   return <div style={{ opacity:op, transition:'opacity 220ms ease-in-out' }}>{children}</div>;
 }
 
-export default function ChatOverlay({ config, messages, pinnedMessage }: Props) {
+export default function ChatOverlay({ config, messages, pinnedMessage, showLoader }: Props) {
   const cfg = config as OverlayConfig & {
     font?:string; stroke?:string; emoteScale?:number;
     smallCaps?:boolean; nlAfterName?:boolean; hideNames?:boolean;
@@ -277,11 +278,29 @@ export default function ChatOverlay({ config, messages, pinnedMessage }: Props) 
             from { opacity:0; transform:translateY(-6px); }
             to   { opacity:1; transform:translateY(0); }
           }
+          @keyframes ckSpin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+          }
 
         `}</style>
       </Head>
 
-{/* startup float is fired via showFloat in index.tsx — no DOM here */}
+{showLoader && (
+        /* Exact chatis #loader position: left:calc(50%-60px), bottom:calc(20%-60px)
+           border:none, image inside spinning wrapper — 2s linear */
+        <div style={{
+          position: 'absolute',
+          left: 'calc(50% - 64px)',
+          bottom: 'calc(20% - 64px)',
+          zIndex: 100,
+          animation: 'ckSpin 2s linear infinite',
+          width: 128,
+          height: 128,
+        }}>
+          <img src="/kick-logo.gif" alt="Loading..." width={128} height={128} style={{ display: 'block' }} />
+        </div>
+      )}
 
       {cfg.showPinEnabled && pinnedMessage && (
         <PinBanner
