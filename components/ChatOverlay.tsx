@@ -279,12 +279,42 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
             from { opacity:0; transform:translateY(-6px); }
             to   { opacity:1; transform:translateY(0); }
           }
+          @keyframes ckSpin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+          }
         `}</style>
       </Head>
 
       {showDebug && debugLines.length > 0 && (
-        <div style={{ position:'absolute', top:12, left:12, fontSize:13, background:'rgba(0,0,0,0.65)', borderRadius:4, padding:'4px 8px', zIndex:20 }}>
-          {debugLines.map((l,i) => <p key={i} style={{ margin:0, lineHeight:'1.4' }}>{l}</p>)}
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 50,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          background: 'rgba(0,0,0,0.82)',
+          gap: 16,
+        }}>
+          {/* Kick logo spinning — same pattern as chatis Peepo loader: 2s linear */}
+          <div style={{ animation: 'ckSpin 2s linear infinite', width:128, height:128 }}>
+            <img
+              src="/kick-logo.png"
+              alt="Loading..."
+              width={128}
+              height={128}
+              style={{ display:'block', borderRadius:'18%' }}
+            />
+          </div>
+          {/* Status lines */}
+          <div style={{ textAlign:'center', fontSize:13, color:'#d0d0d0', fontFamily:'sans-serif', fontWeight:600, lineHeight:1.7 }}>
+            {debugLines.map((l,i) => (
+              <p key={i} style={{ margin:0, display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
+                <span style={{ color: l.startsWith('✅') ? '#53fc18' : l.startsWith('❌') ? '#ff4444' : '#888' }}>
+                  {l.startsWith('✅') || l.startsWith('❌') || l.startsWith('⚠️') ? l.slice(0,2) : '●'}
+                </span>
+                <span>{l.replace(/^[✅❌⚠️🟢]\s?/, '')}</span>
+              </p>
+            ))}
+          </div>
         </div>
       )}
 
