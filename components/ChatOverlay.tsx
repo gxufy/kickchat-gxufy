@@ -6,6 +6,7 @@ import type { ParsedMessage } from '../lib/kick';
 interface Props {
   config: OverlayConfig;
   messages: ParsedMessage[];
+  fadingIds: Set<string>;
   pinnedMessage: ParsedMessage | null;
   showLoader: boolean;
 }
@@ -134,7 +135,7 @@ function FadeGroup({ children }: { children: React.ReactNode }) {
   return <div style={{ opacity:op, transition:'opacity 220ms ease-in-out' }}>{children}</div>;
 }
 
-export default function ChatOverlay({ config, messages, pinnedMessage, showLoader }: Props) {
+export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage, showLoader }: Props) {
   const cfg = config as OverlayConfig & {
     font?:string; stroke?:string; emoteScale?:number;
     smallCaps?:boolean; nlAfterName?:boolean; hideNames?:boolean;
@@ -196,6 +197,9 @@ export default function ChatOverlay({ config, messages, pinnedMessage, showLoade
   const renderMsg = (msg: ParsedMessage) => (
     <div key={msg.id} style={{
       margin: '0 10px',
+      // jQuery fadeOut: opacity 1→0 over 400ms, exact chatis behaviour
+      opacity: fadingIds.has(msg.id) ? 0 : 1,
+      transition: fadingIds.has(msg.id) ? 'opacity 400ms linear' : 'none',
       ...(cfg.textBackgroundEnabled ? {
         background:'rgba(0,0,0,0.5)', borderRadius:2, padding:'0 4px',
         display: cfg.textBackgroundWidth==='max' ? 'block' : 'table',
