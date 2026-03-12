@@ -31,7 +31,7 @@ Trigger these in Kick chat. Broadcaster has full access; mods have access to mos
 | `!kickchat stop` | Stops all active overlays | Mod+ |
 | `!kickchat show` / `hide` | Shows or hides the chat overlay | Mod+ |
 | `!kickchat refresh emotes` | Reloads 7TV emotes live | Mod+ |
-| `!kickchat img [url] -t [sec] -o [opacity]` | Displays an image overlay | Mod+ |
+| `!kickchat img [url or 7TV emote name] -t [sec] -o [opacity]` | Displays an image or 7TV emote (e.g. `GIGACHAD`) fullscreen for N seconds | Mod+ |
 | `!kickchat yt [url or preset] -t [sec] -m` | Plays YouTube video/sound. Presets: `bruh` `vine-boom` `dc-ping` `rickroll` `win-error` | Mod+ |
 | `!kickchat tts [message] -v [volume]` | Text-to-speech via StreamElements | Mod+ |
 
