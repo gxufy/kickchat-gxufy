@@ -48,6 +48,7 @@ export default function Page() {
   const [ready, setReady] = useState(false);
   const [config, setConfig] = useState<OverlayConfig | null>(null);
   const [messages, setMessages] = useState<ParsedMessage[]>([]);
+  const [fadingIds, setFadingIds] = useState<Set<string>>(new Set());
   const [showLoader, setShowLoader] = useState(false);
   const [pinnedMessage, setPinnedMessage] = useState<ParsedMessage | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -537,9 +538,9 @@ export default function Page() {
             const timeout = (parseFloat((text.match(/-t\s+([\d.]+)/) || [])[1] ?? '') || 5) * 1000;
             const mute = text.includes('-m');
             const el = document.createElement('div');
-            el.style.cssText = `position:fixed;bottom:0;right:0;z-index:9998;pointer-events:none;`;
+            el.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9998;pointer-events:none;';
             el.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1${mute ? '&mute=1' : ''}&rel=0"
-              width="320" height="180" frameborder="0" allow="autoplay" style="border-radius:8px;"></iframe>`;
+              width="100%" height="100%" frameborder="0" allow="autoplay" style="display:block;"></iframe>`;
             document.body.appendChild(el);
             floats[5] = { el, timer: setTimeout(() => removeFloat(5), timeout) };
             break;
@@ -641,15 +642,26 @@ export default function Page() {
     let fadeInterval: ReturnType<typeof setInterval> | null = null;
     if (cfg.fade !== false) {
       const fadeMs = (cfg.fade as number) * 1000;
+      // Tracks IDs currently in their 400ms fade-out animation
+      const fadingSet = new Set<string>();
       fadeInterval = setInterval(() => {
         const cutoff = Date.now() - fadeMs;
-        const filtered = s.messages.filter(m => (m.timestamp ?? 0) > cutoff);
-        // Only trigger a re-render if something actually expired
-        if (filtered.length !== s.messages.length) {
-          s.messages = filtered;
+        // Find oldest expired message not already fading
+        const expired = s.messages.find(
+          m => (m.timestamp ?? 0) <= cutoff && !fadingSet.has(m.id)
+        );
+        if (!expired) return;
+        // Mark as fading — triggers CSS opacity transition (400ms = jQuery fadeOut default)
+        fadingSet.add(expired.id);
+        setFadingIds(new Set(fadingSet));
+        setTimeout(() => {
+          // After animation completes, remove from messages
+          fadingSet.delete(expired.id);
+          s.messages = s.messages.filter(m => m.id !== expired.id);
           setMessages([...s.messages]);
-        }
-      }, 1000);
+          setFadingIds(new Set(fadingSet));
+        }, 400);
+      }, 200); // 200ms poll — same as chatis update interval
     }
 
     return () => {
@@ -687,6 +699,7 @@ export default function Page() {
       <ChatOverlay
         config={config}
         messages={messages}
+        fadingIds={fadingIds}
         pinnedMessage={pinnedMessage}
         showLoader={showLoader}
       />
