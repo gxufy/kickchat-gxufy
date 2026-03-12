@@ -49,8 +49,6 @@ export default function Page() {
   const [config, setConfig] = useState<OverlayConfig | null>(null);
   const [messages, setMessages] = useState<ParsedMessage[]>([]);
   const [pinnedMessage, setPinnedMessage] = useState<ParsedMessage | null>(null);
-  const [debugLines, setDebugLines] = useState<string[]>([]);
-  const [showDebug, setShowDebug] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Mutable state that doesn't trigger rerenders
@@ -298,29 +296,17 @@ export default function Page() {
     }
 
     async function init() {
-      const debug: string[] = ['🟢 Connecting to Kick...'];
-      setDebugLines([...debug]);
-
       const channel = await getKickChannel(cfg.channel);
       if (!channel) {
         setError(`Could not find Kick channel: "${cfg.channel}". Make sure the channel name is correct.`);
         return;
       }
       s.channel = channel;
-      debug.push(`✅ Channel found: ${channel.user.username} (chatroom #${channel.chatroom.id})`);
-      setDebugLines([...debug]);
-
       if (cfg.sevenTVEmotesEnabled) {
         const globalEmotes = await getSevenTVGlobalEmotes();
         s.emotes.push(...globalEmotes);
-        debug.push(`✅ Loaded ${globalEmotes.length} 7TV global emotes`);
-        setDebugLines([...debug]);
-
         const { emotes: channelEmotes, setId } = await getSevenTVChannelEmotes(channel.user_id.toString());
         s.emotes.push(...channelEmotes);
-        debug.push(`✅ Loaded ${channelEmotes.length} 7TV channel emotes`);
-        setDebugLines([...debug]);
-
         // 7TV SSE for cosmetics + live emotes
         if (cfg.sevenTVCosmeticsEnabled) {
           const sseUrl = `https://events.7tv.io/v3@entitlement.*<ctx=channel;platform=KICK;id=${channel.user.id}>,cosmetic.*<ctx=channel;platform=KICK;id=${channel.user.id}>${setId ? `,emote_set.*<object_id=${setId}>` : ''}`;
@@ -343,10 +329,6 @@ export default function Page() {
           cleanup = () => { sse.close(); if (prevCleanup) prevCleanup(); };
         }
       }
-
-      debug.push('🟢 Connecting to Kick chat...');
-      setDebugLines([...debug]);
-
       // Kick Pusher connection
       // disableStats: avoids Pusher's stats pings which can confuse
       // some proxies and cause silent disconnects
@@ -410,14 +392,34 @@ export default function Page() {
 
       // Float overlay system — mirrors chatis showFloat/removeFloat
       const floats: { [id: number]: { el: HTMLElement; timer: ReturnType<typeof setTimeout> | null } } = {};
-      function showFloat(id: number, html: string, timeoutMs = 3000, opacity = 1) {
+      // showFloat — exact chatis implementation:
+      // position:fixed; left:50%; bottom:1%; transform:translate(-50%,0)
+      // background:rgba(0,0,0,alpha); padding:2px; font-weight:800; white-space:pre-wrap
+      // Uses chat_container font-size just like chatis does
+      function showFloat(id: number, msg: string, timeoutMs = 5000, alpha = 0.3) {
         removeFloat(id);
-        const el = document.createElement('div');
-        el.style.cssText = `position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;
-          background:rgba(0,0,0,0.85);color:#fff;padding:18px 28px;border-radius:10px;
-          font-size:1.1rem;font-weight:700;text-align:center;white-space:pre-line;
-          border:2px solid #53fc18;font-family:sans-serif;pointer-events:none;opacity:${opacity};`;
-        el.innerHTML = html;
+        const chatFontSize = window.getComputedStyle(
+          document.getElementById('chat_container') ?? document.body
+        ).fontSize;
+        const el = document.createElement('pre');
+        el.style.cssText = [
+          'position:fixed',
+          'left:50%',
+          'bottom:1%',
+          'max-width:99%',
+          'white-space:pre-wrap',
+          'margin:0',
+          'padding:2px',
+          `background:rgba(0,0,0,${alpha})`,
+          'color:#fff',
+          'font-weight:800',
+          `font-size:${chatFontSize}`,
+          'z-index:9999',
+          'transform:translate(-50%,0)',
+          'pointer-events:none',
+          'font-family:inherit',
+        ].join(';');
+        el.textContent = msg;
         document.body.appendChild(el);
         floats[id] = {
           el,
@@ -556,13 +558,12 @@ export default function Page() {
       // On every successful (re)connect: re-subscribe if the channel
       // was dropped. Pusher unsubscribes channels on disconnect.
       pusher.connection.bind('connected', () => {
-        debug.push('✅ Connected to Kick chat!');
-        setDebugLines([...debug]);
-        setTimeout(() => setShowDebug(false), 4000);
         // Re-subscribe if channel was lost during disconnect
         if (!pusher.channel(chatroomName)) {
           bindChannel();
         }
+        // Exact chatis startup float: bottom-center pill, 5s, alpha=0.3
+        showFloat(1, 'Kick Chat Overlay\nmade by @Gxufy', 5000, 0.3);
       });
 
       // Track state changes — mirrors chatis's ReconnectingWebSocket
@@ -678,8 +679,6 @@ export default function Page() {
         config={config}
         messages={messages}
         pinnedMessage={pinnedMessage}
-        debugLines={debugLines}
-        showDebug={showDebug}
       />
     </>
   );
