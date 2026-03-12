@@ -287,34 +287,17 @@ export default function ChatOverlay({ config, messages, pinnedMessage, debugLine
       </Head>
 
       {showDebug && debugLines.length > 0 && (
+        /* Exact chatis loader: spinning image, single text line below, no bg/shadow/border */
         <div style={{
-          position: 'fixed', inset: 0, zIndex: 50,
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
-          background: 'rgba(0,0,0,0.82)',
-          gap: 16,
+          position: 'absolute', left: 'calc(50% - 64px)', bottom: '20%',
+          zIndex: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
         }}>
-          {/* Kick logo spinning — same pattern as chatis Peepo loader: 2s linear */}
-          <div style={{ animation: 'ckSpin 2s linear infinite', width:128, height:128 }}>
-            <img
-              src="/kick-logo.png"
-              alt="Loading..."
-              width={128}
-              height={128}
-              style={{ display:'block', borderRadius:'18%' }}
-            />
+          <div style={{ animation: 'ckSpin 2s linear infinite', width: 128, height: 128 }}>
+            <img src="/kick-logo.png" alt="Loading..." width={128} height={128} style={{ display: 'block' }} />
           </div>
-          {/* Status lines */}
-          <div style={{ textAlign:'center', fontSize:13, color:'#d0d0d0', fontFamily:'sans-serif', fontWeight:600, lineHeight:1.7 }}>
-            {debugLines.map((l,i) => (
-              <p key={i} style={{ margin:0, display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
-                <span style={{ color: l.startsWith('✅') ? '#53fc18' : l.startsWith('❌') ? '#ff4444' : '#888' }}>
-                  {l.startsWith('✅') || l.startsWith('❌') || l.startsWith('⚠️') ? l.slice(0,2) : '●'}
-                </span>
-                <span>{l.replace(/^[✅❌⚠️🟢]\s?/, '')}</span>
-              </p>
-            ))}
-          </div>
+          <p style={{ margin: 0, color: '#fff', fontFamily: 'sans-serif', fontSize: 13, fontWeight: 700, textAlign: 'center', whiteSpace: 'pre' }}>
+            Kick Chat Overlay made by @Gxufy
+          </p>
         </div>
       )}
 
