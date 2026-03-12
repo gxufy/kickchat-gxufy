@@ -402,10 +402,11 @@ export default function Page() {
       // Chatis reads #chat_container computed font-size which is set by size_*.css
       // (20px=small, 34px=medium, 48px=large). We use the same values directly
       // from config so it's always correct and scales with overlay resolution.
-      const SIZE_MAP: Record<string, string> = { small: '20px', medium: '34px', large: '48px' };
       function showFloat(id: number, msg: string, timeoutMs = 5000, alpha = 0.3) {
         removeFloat(id);
-        const chatFontSize = SIZE_MAP[cfg.textSize] ?? '34px';
+        // Chatis fires showFloat on document.ready BEFORE size CSS loads,
+        // so it gets browser default ~16px. We hardcode 14px to match that small look.
+        const chatFontSize = '14px';
         const el = document.createElement('pre');
         el.style.cssText = [
           'position:fixed',
