@@ -48,6 +48,7 @@ export default function Page() {
   const [ready, setReady] = useState(false);
   const [config, setConfig] = useState<OverlayConfig | null>(null);
   const [messages, setMessages] = useState<ParsedMessage[]>([]);
+  const [showLoader, setShowLoader] = useState(false);
   const [pinnedMessage, setPinnedMessage] = useState<ParsedMessage | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -296,6 +297,7 @@ export default function Page() {
     }
 
     async function init() {
+      setShowLoader(true);
       const channel = await getKickChannel(cfg.channel);
       if (!channel) {
         setError(`Could not find Kick channel: "${cfg.channel}". Make sure the channel name is correct.`);
@@ -558,12 +560,13 @@ export default function Page() {
       // On every successful (re)connect: re-subscribe if the channel
       // was dropped. Pusher unsubscribes channels on disconnect.
       pusher.connection.bind('connected', () => {
+        setShowLoader(false);
         // Re-subscribe if channel was lost during disconnect
         if (!pusher.channel(chatroomName)) {
           bindChannel();
         }
         // Exact chatis startup float: bottom-center pill, 5s, alpha=0.3
-        showFloat(1, 'Kick Chat Overlay\nmade by @Gxufy', 5000, 0.3);
+        showFloat(1, 'Kick Chat Overlay made by @Gxufy', 5000, 0.3);
       });
 
       // Track state changes — mirrors chatis's ReconnectingWebSocket
@@ -679,6 +682,7 @@ export default function Page() {
         config={config}
         messages={messages}
         pinnedMessage={pinnedMessage}
+        showLoader={showLoader}
       />
     </>
   );
