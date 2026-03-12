@@ -81,6 +81,7 @@ export default function Page() {
     const cfg = parsed.data;
     setConfig(cfg);
     stateRef.current.config = cfg;
+    setShowLoader(true); // show immediately on load, like chatis #loader
 
     // Apply theme
     const applyTheme = (theme: string) => {
@@ -297,7 +298,6 @@ export default function Page() {
     }
 
     async function init() {
-      setShowLoader(true);
       const channel = await getKickChannel(cfg.channel);
       if (!channel) {
         setError(`Could not find Kick channel: "${cfg.channel}". Make sure the channel name is correct.`);
@@ -560,13 +560,15 @@ export default function Page() {
       // On every successful (re)connect: re-subscribe if the channel
       // was dropped. Pusher unsubscribes channels on disconnect.
       pusher.connection.bind('connected', () => {
-        setShowLoader(false);
+        setShowLoader(false); // hide loader on connect, exact chatis $('#loader').hide()
         // Re-subscribe if channel was lost during disconnect
         if (!pusher.channel(chatroomName)) {
           bindChannel();
         }
-        // Exact chatis startup float: bottom-center pill, 5s, alpha=0.3
+        // showFloat text fires on connect — chatis fires it on document.ready but
+        // we fire on connect since we don't have a static HTML page
         showFloat(1, 'Kick Chat Overlay made by @Gxufy', 5000, 0.3);
+
       });
 
       // Track state changes — mirrors chatis's ReconnectingWebSocket
