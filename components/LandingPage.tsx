@@ -490,7 +490,7 @@ export default function LandingPage() {
                         </span>
                       )}{' '}
                       <span>
-                        {m.strike ? <s>{m.msg}</s> : m.msg}
+                        {m.msg}
                         {m.emotes.map((e, ei) => sevenTVE
                           ? <img key={ei} className="pe" src={e.src} alt={e.alt} />
                           : <span key={ei}> {e.alt}</span>
