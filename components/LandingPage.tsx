@@ -35,7 +35,7 @@ const PREV_MSGS = [
       { src: '/badges/verified.svg', alt: 'verified' },
     ],
     msg: "Don't forget to go to brandriskpromotions.com!",
-    emotes: [{ src: 'https://cdn.7tv.app/emote/01FZ975PV8000B4AWRZNMVNEXN/2x.webp', alt: 'LOL' }],
+    emotes: [{ src: 'https://cdn.7tv.app/emote/01GNQNADZG0008EC7XVFGMTRNY/2x.webp', alt: 'LOL' }],
   },
   {
     color: '#FF8C00',
@@ -58,8 +58,8 @@ const PREV_MSGS = [
       { src: '/badges/moderator.svg', alt: 'moderator' },
       { src: '/badges/sidekick.svg', alt: 'sidekick' },
     ],
-    msg: 'how do you do like my new kick chat overlay?',
-    emotes: [{ src: 'https://cdn.7tv.app/emote/01G1KTDMV00007V6BGFK48Q4DC/2x.webp', alt: 'gg' }],
+    msg: 'how do you like my new kick chat overlay? ',
+    emotes: [{ src: 'https://cdn.7tv.app/emote/01H3HH5M180005101ADVY57FSB/2x.webp', alt: 'gg' }],
   },
   {
     color: '#D399FF',
@@ -529,7 +529,7 @@ export default function LandingPage() {
           <ol className="steps">
             <li>Enter your channel name, tweak your options, then click <strong>Generate &amp; Copy</strong></li>
             <li>In OBS: <strong>Add Source → Browser Source</strong></li>
-            <li>Paste the URL and set your preferred size</li>
+            <li>Paste the URL and set your preferred size — my personal favorite is <strong>830 × 230</strong></li>
           </ol>
         </div>
 
