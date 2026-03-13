@@ -95,12 +95,12 @@ export default function LandingPage() {
   const [theme,       setTheme]       = useState('dark');
   const [textSize,    setTextSize]    = useState('medium');
   const [font,        setFont]        = useState('opensans');
-  const [textShadow,  setTextShadow]  = useState('small');
+  const [textShadow,  setTextShadow]  = useState('large');
   const [stroke,      setStroke]      = useState('none');
   const [animation,   setAnimation]   = useState('slide');
   const [fade,        setFade]        = useState('30');
-  const [fadeBool,    setFadeBool]    = useState(false);
-  const [showPin,     setShowPin]     = useState(false);
+  const [fadeBool,    setFadeBool]    = useState(true);
+  const [showPin,     setShowPin]     = useState(true);
   const [textBg,      setTextBg]      = useState(false);
   const [textBgWidth, setTextBgWidth] = useState('min');
   const [emoteScale,  setEmoteScale]  = useState('');
