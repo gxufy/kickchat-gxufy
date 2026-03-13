@@ -23,63 +23,68 @@ const PSZ = {
 } as const;
 type SzKey = keyof typeof PSZ;
 
-// Preview messages — real 7TV emote IDs, real badge SVGs, name-paints
+// Preview messages — exact requested names, badges, messages, emotes
 const PREV_MSGS = [
   {
-    color: '#FF6B35',
-    paint: 'linear-gradient(135deg, #FF6B35, #F7C59F)',
-    user: 'giambaJ',
+    color: '#FF4B6E',
+    paint: 'linear-gradient(135deg, #FF4B6E, #ff8c69)',
+    user: 'AdinRoss',
     badges: [
-      { src: '/badges/broadcaster.svg', alt: 'broadcaster' },
-      { src: '/badges/moderator.svg', alt: 'moderator' },
+      { src: '/badges/subGifter200.svg', alt: 'subGifter200' },
+      { src: '/badges/og.svg', alt: 'og' },
+      { src: '/badges/verified.svg', alt: 'verified' },
     ],
-    msg: 'Nice chat',
-    emotes: [{ src: 'https://cdn.7tv.app/emote/60ae9f69a3a57b703b9cb034/2x.webp', alt: 'GIGACHAD' }],
+    msg: "Don't forget to go to brandriskpromotions.com!",
+    emotes: [{ src: 'https://cdn.7tv.app/emote/01FZ975PV8000B4AWRZNMVNEXN/2x.webp', alt: 'LOL' }],
+  },
+  {
+    color: '#FF8C00',
+    paint: null,
+    user: 'Annoying',
+    badges: [
+      { src: '/badges/subGifter50.svg', alt: 'subGifter50' },
+      { src: '/badges/founder.svg', alt: 'founder' },
+      { src: '/badges/verified.svg', alt: 'verified' },
+    ],
+    msg: 'Check DM's, I gave you max prio for my server "The Towns".',
+    emotes: [{ src: 'https://cdn.7tv.app/emote/01GFWC73G8000F5SH2VRR170BE/2x.webp', alt: 'BANGER' }],
   },
   {
     color: '#53fc18',
-    paint: null,
-    user: 'IS2511',
+    paint: 'linear-gradient(90deg, #53fc18, #00e5ff, #53fc18)',
+    user: 'Gxufy',
     badges: [
-      { src: '/badges/verified.svg', alt: 'verified' },
-      { src: '/badges/staff.svg', alt: 'staff' },
-    ],
-    msg: 'jChat but better',
-    strike: true,
-    emotes: [],
-  },
-  {
-    color: '#5b87ff',
-    paint: null,
-    user: 'iinnkii',
-    badges: [
-      { src: '/badges/moderator.svg', alt: 'mod' },
+      { src: '/badges/subGifter50.svg', alt: 'subGifter50' },
+      { src: '/badges/moderator.svg', alt: 'moderator' },
       { src: '/badges/sidekick.svg', alt: 'sidekick' },
     ],
-    msg: 'This overlay goes crazy',
-    emotes: [{ src: 'https://cdn.7tv.app/emote/6304e8af5f7b9d53a8be7f03/2x.webp', alt: 'peepoHappy' }],
+    msg: 'how do you do like my new kick chat overlay?',
+    emotes: [{ src: 'https://cdn.7tv.app/emote/01G1KTDMV00007V6BGFK48Q4DC/2x.webp', alt: 'gg' }],
   },
   {
     color: '#D399FF',
-    paint: 'linear-gradient(90deg, #D399FF, #a855f7, #D399FF)',
-    user: 'TristianJones116',
+    paint: 'linear-gradient(135deg, #D399FF, #7c3aed, #D399FF)',
+    user: 'Konvy',
     badges: [
-      { src: '/badges/subscriber.svg', alt: 'sub' },
-      { src: '/badges/trainwreckstv.svg', alt: 'trainwreckstv' },
+      { src: '/badges/subGifter25.svg', alt: 'subGifter25' },
+      { src: '/badges/broadcaster.svg', alt: 'broadcaster' },
+      { src: '/badges/verified.svg', alt: 'verified' },
     ],
-    msg: '',
-    emotes: [{ src: 'https://cdn.7tv.app/emote/60b02ab44d08800edf9c8b28/2x.webp', alt: 'monkaS' }],
+    msg: "WORD TO MY M*THER I DON'T VIEWBOT",
+    emotes: [{ src: 'https://cdn.7tv.app/emote/01K4H935HDHW7MASYMQ2Y3P967/2x.webp', alt: 'ohnono' }],
   },
   {
-    color: '#FF4B6E',
-    paint: null,
-    user: 'batouttahell24',
+    color: '#00BFFF',
+    paint: 'linear-gradient(90deg, #00BFFF, #0080ff, #00BFFF)',
+    user: 'Trainwreckstv',
     badges: [
-      { src: '/badges/subscriber.svg', alt: 'sub' },
-      { src: '/badges/og.svg', alt: 'og' },
+      { src: '/badges/subGifter100.svg', alt: 'subGifter100' },
+      { src: '/badges/vip.svg', alt: 'vip' },
+      { src: '/badges/staff.svg', alt: 'staff' },
+      { src: '/badges/trainwreckstv.svg', alt: 'trainwreckstv' },
     ],
-    msg: 'jchat 2: electric boogaloo',
-    emotes: [{ src: 'https://cdn.7tv.app/emote/60420e3f77137b000de9e675/2x.webp', alt: 'KEKW' }],
+    msg: "I've been tuning in to your streams. Keep up the good work!",
+    emotes: [{ src: 'https://cdn.7tv.app/emote/01GZ2CTDQ000093EMR4AKWQ462/2x.webp', alt: 'lebronArrive' }],
   },
 ];
 
@@ -212,16 +217,16 @@ export default function LandingPage() {
         .toggle input:checked + .toggle-slider::before { transform: translateX(16px); background: #53fc18; }
 
         /* Preview */
-        #submit_container { display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-top: 14px; }
-        .preview-wrap { flex: 1; min-width: 260px; }
+        #submit_container { display: flex; flex-direction: column; gap: 0; margin-top: 14px; }
+        .preview-wrap { width: 100%; }
         .preview-label { font-size: 0.78rem; color: #666; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
         .preview-label button { background: none; border: 1px solid #444; border-radius: 4px; color: #888; font-size: 0.75rem; padding: 1px 7px; cursor: pointer; transition: border-color .15s, color .15s; }
         .preview-label button:hover { border-color: #53fc18; color: #53fc18; }
         #example { border: 1px solid #444; border-radius: 6px; overflow: hidden; transition: background .2s; }
-        #example.white { background: #fff; }
+        #example.white { background: #3a3a3a; }
         #example.checkered { background: repeating-conic-gradient(#1e1e1e 0% 25%, #171717 0% 50%) 0 0 / 16px 16px; }
         .example-inner { width: calc(100% - 20px); padding: 10px; word-break: break-word; font-weight: 800; color: white; }
-        #example.white .example-inner { color: #111; }
+
 
         input[type=submit] { background: #53fc18; color: #000; border: none; border-radius: 7px; font-size: 1rem; font-weight: 800; padding: 12px 28px; cursor: pointer; font-family: inherit; transition: background .15s, transform .1s; align-self: flex-end; letter-spacing: -.01em; }
         input[type=submit]:hover { background: #7aff4a; transform: translateY(-1px); }
@@ -452,7 +457,7 @@ export default function LandingPage() {
                   fontFamily: fontCSS, fontSize: psz.fs, lineHeight: psz.lh,
                   fontVariant: smallCaps ? 'small-caps' : undefined,
                   fontWeight: 800,
-                  color: previewWhite ? '#111' : 'white',
+                  color: 'white',
                   ...(pFilter ? { filter: pFilter } : {}),
                   ...(pStroke ? { WebkitTextStroke: pStroke } : {}),
                 }}>
@@ -496,6 +501,8 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
+          </div>
+          <div style={{ display:'flex', justifyContent:'center', marginTop:14 }}>
             <input type="submit" value="Generate & Copy" />
           </div>
         </form>
@@ -510,9 +517,9 @@ export default function LandingPage() {
           </div>
           <div className="url-actions">
             <a href={overlayUrl} target="_blank" rel="noreferrer" className="url-newtab">
-              👁️ Preview in new tab <span style={{fontSize:'0.7rem', color:'#888'}}>(channel must be live)</span>
+              👁️ Preview in new tab <span style={{fontSize:'0.7rem', color:'#888'}}>(type in your chat to test)</span>
             </a>
-            <span style={{ fontSize:'0.78rem', color:'#444' }}>Recommended OBS size: <strong style={{color:'#888'}}>830 × 230</strong></span>
+            <span style={{ fontSize:'0.78rem', color:'#444' }}>Works at any resolution — set whatever fits your layout</span>
           </div>
         </div>
 
@@ -522,7 +529,7 @@ export default function LandingPage() {
           <ol className="steps">
             <li>Enter your channel name, tweak your options, then click <strong>Generate &amp; Copy</strong></li>
             <li>In OBS: <strong>Add Source → Browser Source</strong></li>
-            <li>Paste the URL — recommended size: <strong>830 × 230</strong></li>
+            <li>Paste the URL and set your preferred size</li>
           </ol>
         </div>
 
