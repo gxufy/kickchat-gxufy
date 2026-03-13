@@ -34,7 +34,7 @@ const PREV_MSGS = [
       { src: '/badges/og.svg', alt: 'og' },
       { src: '/badges/verified.svg', alt: 'verified' },
     ],
-    msg: "Don't forget to go to brandriskpromotions.com!",
+    msg: "Don't forget to go to brandriskpromotions.com! ",
     emotes: [{ src: 'https://cdn.7tv.app/emote/01GNQNADZG0008EC7XVFGMTRNY/2x.webp', alt: 'LOL' }],
   },
   {
@@ -46,7 +46,7 @@ const PREV_MSGS = [
       { src: '/badges/founder.svg', alt: 'founder' },
       { src: '/badges/verified.svg', alt: 'verified' },
     ],
-    msg: "Check DM's, I gave you max prio for my server \"The Towns\".",
+    msg: "Check DM's, I gave you max prio for my server \"The Towns\". ",
     emotes: [{ src: 'https://cdn.7tv.app/emote/01GFWC73G8000F5SH2VRR170BE/2x.webp', alt: 'BANGER' }],
   },
   {
@@ -70,7 +70,7 @@ const PREV_MSGS = [
       { src: '/badges/broadcaster.svg', alt: 'broadcaster' },
       { src: '/badges/verified.svg', alt: 'verified' },
     ],
-    msg: "WORD TO MY M*THER I DON'T VIEWBOT",
+    msg: "WORD TO MY M*THER I DON'T VIEWBOT ",
     emotes: [{ src: 'https://cdn.7tv.app/emote/01K4H935HDHW7MASYMQ2Y3P967/2x.webp', alt: 'ohnono' }],
   },
   {
@@ -83,7 +83,7 @@ const PREV_MSGS = [
       { src: '/badges/staff.svg', alt: 'staff' },
       { src: '/badges/trainwreckstv.svg', alt: 'trainwreckstv' },
     ],
-    msg: "I've been tuning in to your streams. Keep up the good work!",
+    msg: "I've been tuning in to your streams. Keep up the good work! ",
     emotes: [{ src: 'https://cdn.7tv.app/emote/01GZ2CTDQ000093EMR4AKWQ462/2x.webp', alt: 'lebronArrive' }],
   },
 ];
