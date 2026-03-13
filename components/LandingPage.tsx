@@ -46,7 +46,7 @@ const PREV_MSGS = [
       { src: '/badges/founder.svg', alt: 'founder' },
       { src: '/badges/verified.svg', alt: 'verified' },
     ],
-    msg: "Check DM's, I gave you max prio for my server \"The Towns\". ",
+    msg: "Check DMs, I gave you max prio for my GTA server \"The Towns\". ",
     emotes: [{ src: 'https://cdn.7tv.app/emote/01GFWC73G8000F5SH2VRR170BE/2x.webp', alt: 'BANGER' }],
   },
   {
