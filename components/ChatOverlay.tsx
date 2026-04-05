@@ -200,10 +200,7 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
       // jQuery fadeOut: opacity 1→0 over 400ms, exact chatis behaviour
       opacity: fadingIds.has(msg.id) ? 0 : 1,
       transition: fadingIds.has(msg.id) ? 'opacity 400ms linear' : 'none',
-      ...(cfg.textBackgroundEnabled ? {
-        background:'rgba(0,0,0,0.5)', borderRadius:2, padding:'0 4px',
-        display: cfg.textBackgroundWidth==='max' ? 'block' : 'table',
-      } : {}),
+
     }}>
       <MsgLine msg={msg} sz={sz} emoteMaxH={emoteMaxH} emoteMaxW={emoteMaxW}
         stroke={strokeVal} smallCaps={cfg.smallCaps??false}

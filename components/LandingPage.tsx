@@ -92,7 +92,6 @@ export default function LandingPage() {
   const [channel,     setChannel]     = useState('');
   const [sevenTVE,    setSevenTVE]    = useState(true);
   const [sevenTVC,    setSevenTVC]    = useState(true);
-  const [theme,       setTheme]       = useState('dark');
   const [textSize,    setTextSize]    = useState('medium');
   const [font,        setFont]        = useState('opensans');
   const [textShadow,  setTextShadow]  = useState('large');
@@ -101,8 +100,6 @@ export default function LandingPage() {
   const [fade,        setFade]        = useState('30');
   const [fadeBool,    setFadeBool]    = useState(true);
   const [showPin,     setShowPin]     = useState(true);
-  const [textBg,      setTextBg]      = useState(false);
-  const [textBgWidth, setTextBgWidth] = useState('min');
   const [emoteScale,  setEmoteScale]  = useState('');
   const [smallCaps,   setSmallCaps]   = useState(false);
   const [nlAfterName, setNlAfterName] = useState(false);
@@ -118,11 +115,9 @@ export default function LandingPage() {
     channel: channel || 'yourchannel',
     sevenTVEmotesEnabled:    String(sevenTVE),
     sevenTVCosmeticsEnabled: String(sevenTVC),
-    theme, textSize, font, textShadow, stroke, animation,
+    textSize, font, textShadow, stroke, animation,
     ...(fadeBool && fade !== '' ? { fade } : {}),
     showPinEnabled:        String(showPin),
-    textBackgroundEnabled: String(textBg),
-    textBackgroundWidth:   textBgWidth,
     ...(emoteScale !== '' ? { emoteScale } : {}),
     smallCaps:   String(smallCaps),
     nlAfterName: String(nlAfterName),
@@ -338,14 +333,6 @@ export default function LandingPage() {
                 <label>Animation</label>
               </div>
               <div className="form_row left">
-                <select value={theme} onChange={e => setTheme(e.target.value)}>
-                  <option value="dark">Dark</option>
-                  <option value="light">Light</option>
-                  <option value="system">System</option>
-                </select>
-                <label>Theme</label>
-              </div>
-              <div className="form_row left">
                 <input type="text" placeholder="1.0" style={{ width: 80 }}
                   value={emoteScale} onChange={e => setEmoteScale(e.target.value)} />
                 <label>Emote scale (0–3)</label>
@@ -413,28 +400,6 @@ export default function LandingPage() {
                   <span className="toggle-slider" />
                 </label>
               </div>
-              <div className="toggle-wrap">
-                <label>Text background</label>
-                <label className="toggle">
-                  <input type="checkbox" checked={textBg} onChange={e => setTextBg(e.target.checked)} />
-                  <span className="toggle-slider" />
-                </label>
-              </div>
-              {textBg && (
-                <div className="toggle-wrap" style={{ gap:10 }}>
-                  <label style={{ fontSize:'0.78rem' }}>BG width</label>
-                  {(['min','max'] as const).map(v => (
-                    <label key={v} style={{ display:'flex', alignItems:'center', gap:4, cursor:'pointer' }}>
-                      <input type="radio" name="textBgWidth" value={v}
-                        checked={textBgWidth === v} onChange={() => setTextBgWidth(v)}
-                        style={{ accentColor:'#53fc18' }} />
-                      <span style={{ fontSize:'0.78rem', color: textBgWidth===v ? '#53fc18' : '#555' }}>
-                        {v === 'min' ? 'Fit' : 'Full'}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              )}
               <div style={{ borderTop:'1px solid #2a2a2a', marginTop:8, paddingTop:10 }}>
                 <p style={{ margin:'0 0 6px', fontSize:'0.78rem', color:'#555', textAlign:'right' }}>Extra bots to hide (comma-separated)</p>
                 <input type="text" placeholder="nightbot, streamelements…"
@@ -470,7 +435,6 @@ export default function LandingPage() {
                   {PREV_MSGS.map((m, i) => (
                     <div key={i} style={{
                       lineHeight: psz.lh,
-                      ...(textBg ? { background:'rgba(0,0,0,0.5)', borderRadius:2, padding:'0 4px', display: textBgWidth==='max' ? 'block' : 'table', marginBottom:1 } : {}),
                     }}>
                       {!hideNames && (
                         <span style={{ display:'inline-block' }}>
