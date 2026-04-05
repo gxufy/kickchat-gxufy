@@ -24,12 +24,27 @@ const QuerySchema = z.object({
   channel: z.string().min(1),
   sevenTVCosmeticsEnabled: z.string().optional().transform(v => v !== 'false'),
   sevenTVEmotesEnabled: z.string().optional().transform(v => v !== 'false'),
-  textShadow: z.string().optional().transform(v => v === 'none' ? 'none' : v === 'medium' ? 'medium' : v === 'large' ? 'large' : 'small'),
-  textSize: z.string().optional().transform(v => v === 'small' ? 'small' : v === 'large' ? 'large' : 'medium'),
-  animation: z.string().optional().transform(v => v === 'slide' ? 'slide' : v === 'fade' ? 'fade' : 'none'),
+  textShadow: z.string().optional().transform(v => {
+    const map: Record<string,string> = {'1':'none','2':'small','3':'medium','4':'large'};
+    return map[v??''] ?? (['none','small','medium','large'].includes(v??'') ? v! : 'large');
+  }),
+  textSize: z.string().optional().transform(v => {
+    const map: Record<string,string> = {'1':'small','2':'medium','3':'large'};
+    return map[v??''] ?? (['small','medium','large'].includes(v??'') ? v! : 'medium');
+  }),
+  animation: z.string().optional().transform(v => {
+    const map: Record<string,string> = {'1':'none','2':'slide','3':'fade'};
+    return map[v??''] ?? (['none','slide','fade'].includes(v??'') ? v! : 'slide');
+  }),
   showPinEnabled: z.string().optional().transform(v => v === 'true'),
-  font: z.string().optional().transform(v => v ?? 'default'),
-  stroke: z.string().optional().transform(v => ['thin','medium','thick','thicker'].includes(v ?? '') ? v! : 'none'),
+  font: z.string().optional().transform(v => {
+    const map: Record<string,string> = {'1':'baloo','2':'segoe','3':'roboto','4':'lato','5':'noto','6':'sourcecode','7':'impact','8':'comfortaa','9':'dancing','10':'indieflower','11':'opensans','12':'alsina'};
+    return map[v??''] ?? v ?? 'opensans';
+  }),
+  stroke: z.string().optional().transform(v => {
+    const map: Record<string,string> = {'1':'none','2':'thin','3':'medium','4':'thick','5':'thicker'};
+    return map[v??''] ?? (['none','thin','medium','thick','thicker'].includes(v??'') ? v! : 'none');
+  }),
   emoteScale: z.string().optional().transform(v => { const n = parseFloat(v ?? ''); return isNaN(n) ? 1 : n; }),
   fade: z.string().optional().transform(v => { const n = parseInt(v ?? ''); return isNaN(n) ? (false as const) : n; }),
   smallCaps: z.string().optional().transform(v => v === 'true'),
