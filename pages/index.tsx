@@ -24,13 +24,10 @@ const QuerySchema = z.object({
   channel: z.string().min(1),
   sevenTVCosmeticsEnabled: z.string().optional().transform(v => v !== 'false'),
   sevenTVEmotesEnabled: z.string().optional().transform(v => v !== 'false'),
-  theme: z.string().optional().transform(v => v === 'light' ? 'light' : v === 'system' ? 'system' : 'dark'),
   textShadow: z.string().optional().transform(v => v === 'none' ? 'none' : v === 'medium' ? 'medium' : v === 'large' ? 'large' : 'small'),
   textSize: z.string().optional().transform(v => v === 'small' ? 'small' : v === 'large' ? 'large' : 'medium'),
   animation: z.string().optional().transform(v => v === 'slide' ? 'slide' : v === 'fade' ? 'fade' : 'none'),
   showPinEnabled: z.string().optional().transform(v => v === 'true'),
-  textBackgroundEnabled: z.string().optional().transform(v => v === 'true'),
-  textBackgroundWidth: z.string().optional().transform(v => v === 'max' ? 'max' : 'min'),
   font: z.string().optional().transform(v => v ?? 'default'),
   stroke: z.string().optional().transform(v => ['thin','medium','thick','thicker'].includes(v ?? '') ? v! : 'none'),
   emoteScale: z.string().optional().transform(v => { const n = parseFloat(v ?? ''); return isNaN(n) ? 1 : n; }),
@@ -84,15 +81,6 @@ export default function Page() {
     stateRef.current.config = cfg;
     setShowLoader(true); // show immediately on load, like chatis #loader
 
-    // Apply theme
-    const applyTheme = (theme: string) => {
-      if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    };
-    applyTheme(cfg.theme);
 
     const s = stateRef.current;
 
