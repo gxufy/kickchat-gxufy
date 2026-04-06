@@ -123,6 +123,7 @@ export default function Page() {
                 />
               );
             }
+            if (i !== words.length - 1) nodes.push(' ');
           } else {
             nodes.push(i !== words.length - 1 ? word + ' ' : word);
           }
@@ -144,6 +145,9 @@ export default function Page() {
             );
             i++;
           }
+          // Check if next token is also an emote — if not, we need a space after this emote
+          const nextIsEmote = i + 1 < words.length && emotes.findIndex(e => e.name === words[i + 1]) !== -1;
+          const needsSpace = i !== words.length - 1 && !nextIsEmote;
           if (zeroWidths.length === 0) {
             nodes.push(
               <img
@@ -163,6 +167,7 @@ export default function Page() {
               </span>
             );
           }
+          if (needsSpace) nodes.push(' ');
         }
       }
       return nodes;
