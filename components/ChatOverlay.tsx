@@ -412,7 +412,7 @@ function MsgLine({ msg, sz, emoteMaxH, emoteMaxW, stroke, smallCaps, nlAfterName
           <span style={nameStyle}>{msg.identity.username}</span>
           {!nlAfterName ? <span className="ck-colon">:</span> : <br />}
         </span>
-      )}{' '}
+      )}
       <span className="ck-body">
         {msg.message.map((node,i) => <Fragment key={i}>{node}</Fragment>)}
       </span>
