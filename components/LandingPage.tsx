@@ -30,7 +30,7 @@ const PREV_MSGS = [
     paint: 'linear-gradient(135deg, #FF4B6E, #ff8c69)',
     user: 'AdinRoss',
     badges: [
-      { src: '/badges/subGifter200.svg', alt: 'subGifter200' },
+      { src: '/badges/gift_200-249.svg', alt: 'subGifter200' },
       { src: '/badges/og.svg', alt: 'og' },
       { src: '/badges/verified.svg', alt: 'verified' },
     ],
@@ -42,7 +42,7 @@ const PREV_MSGS = [
     paint: null,
     user: 'Annoying',
     badges: [
-      { src: '/badges/subGifter50.svg', alt: 'subGifter50' },
+      { src: '/badges/gift_25-99.svg', alt: 'subGifter50' },
       { src: '/badges/founder.svg', alt: 'founder' },
       { src: '/badges/verified.svg', alt: 'verified' },
     ],
@@ -54,7 +54,7 @@ const PREV_MSGS = [
     paint: 'linear-gradient(90deg, #53fc18, #00e5ff, #53fc18)',
     user: 'Gxufy',
     badges: [
-      { src: '/badges/subGifter50.svg', alt: 'subGifter50' },
+      { src: '/badges/gift_25-99.svg', alt: 'subGifter50' },
       { src: '/badges/moderator.svg', alt: 'moderator' },
       { src: '/badges/sidekick.svg', alt: 'sidekick' },
     ],
@@ -66,7 +66,7 @@ const PREV_MSGS = [
     paint: 'linear-gradient(135deg, #D399FF, #7c3aed, #D399FF)',
     user: 'Konvy',
     badges: [
-      { src: '/badges/subGifter25.svg', alt: 'subGifter25' },
+      { src: '/badges/gift_10-24.svg', alt: 'subGifter25' },
       { src: '/badges/broadcaster.svg', alt: 'broadcaster' },
       { src: '/badges/verified.svg', alt: 'verified' },
     ],
@@ -78,7 +78,7 @@ const PREV_MSGS = [
     paint: 'linear-gradient(90deg, #00BFFF, #0080ff, #00BFFF)',
     user: 'Trainwreckstv',
     badges: [
-      { src: '/badges/subGifter100.svg', alt: 'subGifter100' },
+      { src: '/badges/gift_100-149.svg', alt: 'subGifter100' },
       { src: '/badges/vip.svg', alt: 'vip' },
       { src: '/badges/staff.svg', alt: 'staff' },
       { src: '/badges/trainwreckstv.svg', alt: 'trainwreckstv' },
