@@ -210,8 +210,44 @@ export default function Page() {
           }
           case 'sub_gifter': {
             const count = badge.count ?? 0;
-            const gifterBadge = count >= 200 ? 'subGifter200' : count >= 100 ? 'subGifter100' : count >= 50 ? 'subGifter50' : count >= 25 ? 'subGifter25' : 'subGifter';
-            badgeNodes.push(<img key="gifter" className="ck-badge-img" src={`/badges/${gifterBadge}.svg`} alt="gifter" height={16} width={16} />);
+            const gifterSrc = (() => {
+              if (count >= 5000)  return '/badges/gift_5000_.svg';
+              if (count >= 4000)  return '/badges/gift_4000-4999.svg';
+              if (count >= 3000)  return '/badges/gift_3000-3999.svg';
+              if (count >= 2000)  return '/badges/gift_2000-2999.svg';
+              if (count >= 1000)  return '/badges/gift_1000-1999.svg';
+              if (count >= 850)   return '/badges/gift_850-899.svg';
+              if (count >= 800)   return '/badges/gift_800-849.svg';
+              if (count >= 750)   return '/badges/gift_750-799.svg';
+              if (count >= 700)   return '/badges/gift_700-749.svg';
+              if (count >= 650)   return '/badges/gift_650-699.svg';
+              if (count >= 600)   return '/badges/gift_600-649.svg';
+              if (count >= 500)   return '/badges/gift_500-549.svg';
+              if (count >= 450)   return '/badges/gift_450-499.svg';
+              if (count >= 400)   return '/badges/gift_400-449.svg';
+              if (count >= 300)   return '/badges/gift_300-349.svg';
+              if (count >= 250)   return '/badges/gift_250-299.svg';
+              if (count >= 200)   return '/badges/gift_200-249.svg';
+              if (count >= 150)   return '/badges/gift_150-199.svg';
+              if (count >= 100)   return '/badges/gift_100-149.svg';
+              if (count >= 25)    return '/badges/gift_25-99.svg';
+              if (count >= 10)    return '/badges/gift_10-24.svg';
+              if (count >= 5)     return '/badges/gift_5-9.svg';
+              return '/badges/gift_1-4.svg';
+            })();
+            badgeNodes.push(<img key="gifter" className="ck-badge-img" src={gifterSrc} alt="gifter" height={16} width={16} />);
+            break;
+          }
+          case 'gift_rank': {
+            const rank = badge.count ?? badge.rank ?? 1;
+            const rankSrc = rank <= 1 ? '/badges/gift-rank-1.png' : rank === 2 ? '/badges/gift-rank-2.png' : '/badges/gift-rank-3.png';
+            badgeNodes.push(<img key="gift-rank" className="ck-badge-img" src={rankSrc} alt={`gift-rank-${rank}`} height={16} width={16} />);
+            break;
+          }
+          case 'kicks_rank': {
+            const rank = badge.count ?? badge.rank ?? 1;
+            const rankSrc = rank <= 1 ? '/badges/kicks-rank-1.png' : rank === 2 ? '/badges/kicks-rank-2.png' : '/badges/kicks-rank-3.png';
+            badgeNodes.push(<img key="kicks-rank" className="ck-badge-img" src={rankSrc} alt={`kicks-rank-${rank}`} height={16} width={16} />);
             break;
           }
         }
