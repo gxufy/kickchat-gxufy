@@ -345,7 +345,7 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
   );
 }
 
-/* PinBanner — shows pinned message, auto-hides after 10s, no scrollbar */
+/* PinBanner — shows pinned message, auto-hides after 5s, no scrollbar */
 function PinBanner({ msg, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strokeVal, smallCaps, nlAfterName, hideNames }: {
   msg: ParsedMessage; sz: typeof SIZE[SzKey];
   emoteMaxH:string; emoteMaxW:string; fontFamily:string;
@@ -358,7 +358,7 @@ function PinBanner({ msg, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strok
   useEffect(() => {
     setVisible(true);
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setVisible(false), 7000);
+    timerRef.current = setTimeout(() => setVisible(false), 5000);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [msg.id]);
 
