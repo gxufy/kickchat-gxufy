@@ -105,6 +105,24 @@ export default function Page() {
       const kickEmoteRe = /\[(emote|emoji):(\w+):[^\]]*\]/g;
       const words = content.split(' ');
 
+      // Wrap any emote img in an inline-flex span so wide emotes never get
+      // clipped, flex-shrink:0 ensures they don't compress, and the span
+      // participates in the text flow cleanly like chatis does.
+      const emoteSpan = (key: string, inner: React.ReactNode, grid = false) => (
+        <span
+          key={key}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            verticalAlign: 'middle',
+            flexShrink: 0,
+            ...(grid ? { display: 'inline-grid' } : {}),
+          }}
+        >
+          {inner}
+        </span>
+      );
+
       for (let i = 0; i < words.length; i++) {
         const word = words[i];
         const emoteIdx = emotes.findIndex(e => e.name === word);
@@ -113,14 +131,15 @@ export default function Page() {
           if (kickMatches.length) {
             for (const m of kickMatches) {
               nodes.push(
-                <img
-                  key={`ke-${i}-${m[2]}`}
-                  className="ck-emote"
-                  src={`https://files.kick.com/emotes/${m[2]}/fullsize`}
-                  alt="emote"
-                  height={28}
-                  width={28}
-                />
+                emoteSpan(`ke-${i}-${m[2]}`,
+                  <img
+                    className="ck-emote"
+                    src={`https://files.kick.com/emotes/${m[2]}/fullsize`}
+                    alt="emote"
+                    height={28}
+                    width={28}
+                  />
+                )
               );
             }
             if (i !== words.length - 1) nodes.push(' ');
@@ -145,29 +164,28 @@ export default function Page() {
             );
             i++;
           }
-          // Check if next token is also an emote — if not, we need a space after this emote
-          const nextIsEmote = i + 1 < words.length && emotes.findIndex(e => e.name === words[i + 1]) !== -1;
-          const needsSpace = i !== words.length - 1 && !nextIsEmote;
           if (zeroWidths.length === 0) {
             nodes.push(
-              <img
-                key={`em-${i}`}
-                className={`ck-emote${emote.upscale ? ' ck-upscale' : ''}`}
-                src={emote.image}
-                alt={emote.name}
-                height={emote.height}
-                width={emote.width}
-              />
+              emoteSpan(`em-${i}`,
+                <img
+                  className={`ck-emote${emote.upscale ? ' ck-upscale' : ''}`}
+                  src={emote.image}
+                  alt={emote.name}
+                  height={emote.height}
+                  width={emote.width}
+                />
+              )
             );
           } else {
             nodes.push(
-              <span key={`zws-${i}`} className="inline-grid align-middle pr-1">
+              <span key={`zws-${i}`} style={{ display:'inline-grid', alignItems:'center', verticalAlign:'middle', flexShrink:0 }}>
                 <img className={`ck-emote${emote.upscale ? ' ck-upscale' : ''} m-auto row-[1] col-[1]`} src={emote.image} alt={emote.name} height={emote.height} width={emote.width} />
                 {zeroWidths}
               </span>
             );
           }
-          if (needsSpace) nodes.push(' ');
+          // Always add a space after every emote token (mirrors chatis behaviour)
+          if (i !== words.length - 1) nodes.push(' ');
         }
       }
       return nodes;
