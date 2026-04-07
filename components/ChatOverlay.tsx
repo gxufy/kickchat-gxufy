@@ -279,6 +279,10 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
             from { opacity:0; transform:translateY(-6px); }
             to   { opacity:1; transform:translateY(0); }
           }
+          @keyframes ckPinOut {
+            from { opacity:1; transform:translateY(0); }
+            to   { opacity:0; transform:translateY(-6px); }
+          }
           @keyframes ckSpin {
             from { transform: rotate(0deg); }
             to   { transform: rotate(360deg); }
@@ -353,14 +357,23 @@ function PinBanner({ msg, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strok
   smallCaps:boolean; nlAfterName:boolean; hideNames:boolean;
 }) {
   const [visible, setVisible] = useState(true);
+  const [leaving, setLeaving] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>|null>(null);
 
   useEffect(() => {
     setVisible(true);
+    setLeaving(false);
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setVisible(false), 5000);
+    // Total = 5000ms: 150ms in + 4700ms hold + 150ms out
+    timerRef.current = setTimeout(() => setLeaving(true), 4850);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [msg.id]);
+
+  useEffect(() => {
+    if (!leaving) return;
+    const t = setTimeout(() => setVisible(false), 150);
+    return () => clearTimeout(t);
+  }, [leaving]);
 
   if (!visible) return null;
 
@@ -369,7 +382,7 @@ function PinBanner({ msg, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strok
       position:'absolute', top:0, left:0, right:0, zIndex:10,
       background:'rgba(0,0,0,0.75)', backdropFilter:'blur(4px)',
       padding:'6px 10px 8px', borderRadius:'0 0 6px 6px',
-      animation:'ckPin 150ms ease-out',
+      animation: leaving ? 'ckPinOut 150ms ease-in forwards' : 'ckPin 150ms ease-out',
       fontFamily, fontWeight:800, fontSize:sz.fontSize,
       color:'white',
       wordBreak:'break-word', overflowWrap:'break-word',
