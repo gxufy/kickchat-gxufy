@@ -260,9 +260,7 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
             max-height:     ${emoteMaxH};
             height:         auto;
             width:          auto;
-            margin-right:   ${sz.emoteMR};
-            vertical-align: middle;
-            display:        inline-block;
+            display:        block;
           }
 
           /* Upscale emotes — fill full line-height (chatis upscale class) */
