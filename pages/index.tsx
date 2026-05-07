@@ -596,14 +596,21 @@ export default function Page() {
 
           case 'tts': {
             // Volume is set once via URL param (ttsVolume=0.8) — edit in OBS browser source
-            const ttsText = text.replace(/^!kickchat\s+tts\s*/i, '').trim();
+            let ttsText = text.replace(/^!kickchat\s+tts\s*/i, '').trim();
+            // Strip surrounding quotes (straight or curly) if user wrapped the message
+            ttsText = ttsText.replace(/^[""\u201C\u201D'']|[""\u201C\u201D'']$/g, '').trim();
             if (!ttsText) break;
             const volume = s.config?.ttsVolume ?? 0.5;
             const voice = 'Brian';
             const ttsUrl = `https://api.streamelements.com/kappa/v2/speech?voice=${voice}&text=${encodeURIComponent(ttsText)}`;
             const audio = new Audio(ttsUrl);
             audio.volume = volume;
-            audio.play().catch(() => {});
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+              playPromise.catch(() => {
+                setTimeout(() => audio.play().catch(() => {}), 100);
+              });
+            }
             break;
           }
         }
