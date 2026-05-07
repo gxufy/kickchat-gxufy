@@ -51,7 +51,6 @@ const QuerySchema = z.object({
   nlAfterName: z.string().optional().transform(v => v === 'true'),
   hideNames: z.string().optional().transform(v => v === 'true'),
   botNames: z.string().optional().transform(v => v ?? ''),
-  ttsVolume: z.string().optional().transform(v => { const n = parseFloat(v ?? ''); return isNaN(n) ? 0.5 : Math.min(1, Math.max(0, n)); }),
 });
 
 export type OverlayConfig = z.infer<typeof QuerySchema>;
@@ -595,22 +594,24 @@ export default function Page() {
           }
 
           case 'tts': {
-            // Volume is set once via URL param (ttsVolume=0.8) — edit in OBS browser source
             let ttsText = text.replace(/^!kickchat\s+tts\s*/i, '').trim();
-            // Strip surrounding quotes (straight or curly) if user wrapped the message
-            ttsText = ttsText.replace(/^[""\u201C\u201D'']|[""\u201C\u201D'']$/g, '').trim();
+            // Strip surrounding straight or curly quotes
+            ttsText = ttsText.replace(/^[\u0022\u201C\u2018\u0027]|[\u0022\u201D\u2019\u0027]$/g, '').trim();
             if (!ttsText) break;
-            const volume = s.config?.ttsVolume ?? 0.5;
+            // Fetch audio as blob to avoid CORS/autoplay issues in OBS browser source
             const voice = 'Brian';
             const ttsUrl = `https://api.streamelements.com/kappa/v2/speech?voice=${voice}&text=${encodeURIComponent(ttsText)}`;
-            const audio = new Audio(ttsUrl);
-            audio.volume = volume;
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-              playPromise.catch(() => {
-                setTimeout(() => audio.play().catch(() => {}), 100);
-              });
-            }
+            fetch(ttsUrl)
+              .then(r => r.blob())
+              .then(blob => {
+                const blobUrl = URL.createObjectURL(blob);
+                const audio = new Audio(blobUrl);
+                audio.volume = 1.0;
+                audio.play()
+                  .catch(() => {})
+                  .finally(() => { audio.onended = () => URL.revokeObjectURL(blobUrl); });
+              })
+              .catch(() => {});
             break;
           }
         }
