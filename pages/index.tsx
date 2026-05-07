@@ -594,22 +594,23 @@ export default function Page() {
           }
 
           case 'tts': {
-            let ttsText = text.replace(/^!kickchat\s+tts\s*/i, '').trim();
-            // Strip surrounding straight or curly quotes
-            ttsText = ttsText.replace(/^[\u0022\u201C\u2018\u0027]|[\u0022\u201D\u2019\u0027]$/g, '').trim();
+            const ttsText = text.replace(/^!kickchat\s+tts\s*/i, '').trim();
             if (!ttsText) break;
-            // Fetch audio as blob to avoid CORS/autoplay issues in OBS browser source
-            const voice = 'Brian';
-            const ttsUrl = `https://api.streamelements.com/kappa/v2/speech?voice=${voice}&text=${encodeURIComponent(ttsText)}`;
-            fetch(ttsUrl)
-              .then(r => r.blob())
-              .then(blob => {
-                const blobUrl = URL.createObjectURL(blob);
-                const audio = new Audio(blobUrl);
-                audio.volume = 1.0;
-                audio.play()
-                  .catch(() => {})
-                  .finally(() => { audio.onended = () => URL.revokeObjectURL(blobUrl); });
+            // POST to chatis TTS proxy (same as chatis does) — returns {speak_url}
+            fetch('https://chatis.is2511.com/v2/tts/', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+              body: JSON.stringify({ voice: 'Brian', text: ttsText }),
+            })
+              .then(r => r.json())
+              .then(data => {
+                const speakUrl = (data || {}).speak_url;
+                if (!speakUrl) return;
+                const audio = new Audio(speakUrl);
+                audio.addEventListener('canplaythrough', () => {
+                  audio.volume = 1.0;
+                  audio.play().catch(() => {});
+                });
               })
               .catch(() => {});
             break;
