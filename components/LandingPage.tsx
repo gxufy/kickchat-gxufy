@@ -273,7 +273,7 @@ export default function LandingPage() {
               <tr><td>!kickchat refresh emotes</td><td>Reloads 7TV emotes without a page refresh</td><td className="cmd-access">Mod+</td></tr>
               <tr><td>!kickchat img [url or 7TV emote] -t [sec] -o [opacity]</td><td>Fullscreen image or 7TV emote (e.g. GIGACHAD). Use <code style={{color:'#53fc18'}}>img clear</code> to dismiss</td><td className="cmd-access">Mod+</td></tr>
               <tr><td>!kickchat yt [url or preset] -t [sec] -m</td><td>Fullscreen YouTube video. Presets: bruh, vine-boom, rickroll, dc-ping, win-error. Add <code style={{color:'#53fc18'}}>-m</code> to mute</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!kickchat tts [message]</td><td>Text-to-speech via StreamElements (Brian voice) — volume set via TTS Volume option</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!kickchat tts [message]</td><td>Text-to-speech using the system voice built into OBS</td><td className="cmd-access">Mod+</td></tr>
             </tbody>
           </table>
         </div>
